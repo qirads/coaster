@@ -1,0 +1,115 @@
+#!/usr/bin/env node
+
+'use strict';
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../lib/app');
+var config = require('../config');
+var path = require('path');
+var https = require('https');
+var errorHandler = require('../lib/express-error-handler.wrapper')(app);
+var debug = require('debug')('coaster:www');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port, config.hostName);
+
+/**
+ * Create HTTPS server.
+ */
+
+require('ssl-root-cas/latest')
+  .inject()
+  .addFile(path.join(__dirname, '..', config.filePaths.rootCertificate));
+
+var server = https.createServer({
+  key : config.certs.privateKey,
+  cert: config.certs.certificate
+}, app);
+
+/**
+ * Add error handling middeware with graceful shutdown.
+ */
+
+app.use(errorHandler(server));
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP/HTTPS server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP/HTTPS server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+
+  /**
+   * Spin up application, including database connections.
+   */
+
+  app.spinUp();
+
+}
