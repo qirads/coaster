@@ -35,7 +35,7 @@ module.exports = function(config) {
   };
 
   function ldapVerify(user, done) {
-    User.findOne({ userName: user.uid }, function (err, user) {
+    User.findOne({ userName: { $eq: user.uid } }, function (err, user) {
       if (err) { return done(err); }
       if (!user) {
         return done(null, false, { message: 'User not activated' });
@@ -45,7 +45,7 @@ module.exports = function(config) {
   }
 
   function localVerify(userName, password, done) {
-    User.findOne({ userName: userName.toLowerCase() }, function (err, user) {
+    User.findOne({ userName: { $eq: userName.toLowerCase() } }, function (err, user) {
       if (err) { return done(err); }
       if (!user) {
         return done(null, false, { message: 'User not found' });
