@@ -10,23 +10,27 @@ module.exports = function(config) {
   var Session = mongoose.model('Session');
   var auth = require('../auth.middleware')(config);
   var createError = require('http-errors');
-
-  router.use(auth.authenticate());
-
+  
   restify.serve(router, User, {
-    prefix: '',
-    preMiddleware: auth.authorize.isAdmin,
+    prefix: '', //as that is prefixed on route already!
+    name: 'users', //as new version removed automatic pluralization
+    preMiddleware: [
+      auth.authenticate(),
+      auth.isAdmin(),
+    ],
     private: ['salt', 'hash'],
     onError: function (err, req, res, next) { next(createError(err.statusCode)); }
   });
 
   restify.serve(router, Session, {
     prefix: '',
+    name: 'sessions',
     preMiddleware: [
       function(req, res, next) {
         if (req.method != "GET") { next(createError(405, 'Method not allowed')); }
       },
-      auth.authorize.isAdmin
+      auth.authenticate(),
+      auth.isAdmin()
     ],
     onError: function (err, req, res, next) { next(createError(err.statusCode)); }
   });
