@@ -14,7 +14,7 @@ module.exports = function(config) {
   
   var auth = {
     authenticate: authenticate,
-    isAdmin: isAdmin,
+    authorize: authorize,
     revoke: revoke
   };
   
@@ -26,9 +26,9 @@ module.exports = function(config) {
     });
   }
   
-  function isAdmin() {
+  function authorize(authFn) {
     return function(req, res, next) {
-      if (!req.auth.isAdmin) {
+      if (!authFn(req)) {
         next(createError(403, 'User \"' + req.auth.userName + '\" not authorized to access this resource.'))
       }
       next();

@@ -16,7 +16,7 @@ module.exports = function(config) {
     name: 'users', //as new version removed automatic pluralization
     preMiddleware: [
       auth.authenticate(),
-      auth.isAdmin(),
+      auth.authorize(function(req) { return req.auth.isAdmin; }),
     ],
     private: ['salt', 'hash'],
     onError: function (err, req, res, next) { next(createError(err.statusCode)); }
@@ -26,11 +26,8 @@ module.exports = function(config) {
     prefix: '',
     name: 'sessions',
     preMiddleware: [
-      function(req, res, next) {
-        if (req.method != "GET") { next(createError(405, 'Method not allowed')); }
-      },
       auth.authenticate(),
-      auth.isAdmin()
+      auth.authorize(function(req) { return req.auth.isAdmin; })
     ],
     onError: function (err, req, res, next) { next(createError(err.statusCode)); }
   });
