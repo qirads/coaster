@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(config) {
+module.exports = function(app, config) {
 
   var express = require('express');
   var router = express.Router();
@@ -8,30 +8,29 @@ module.exports = function(config) {
   var mongoose = require('mongoose');
   var User = mongoose.model('User');
   var Session = mongoose.model('Session');
-  var auth = require('../auth.middleware')(config);
-  var createError = require('http-errors');
+  var userConfig = require('./user.config')(app, config);
+  var sessionConfig = require('./session.config')(app, config);
+  var createError = require('http-errors');  
+  var _ = require('lodash');
   
-  restify.serve(router, User, {
-    prefix: '', //as that is prefixed on route already!
-    name: 'users', //as new version removed automatic pluralization
-    preMiddleware: [
-      auth.authenticate(),
-      auth.authorize(function(req) { return req.auth.isAdmin; }),
-    ],
-    private: ['salt', 'hash'],
-    onError: function (err, req, res, next) { next(createError(err.statusCode)); }
+  var defaults = {
+    prefix: '',
+    allowRegex: false,
+    private: ['__v'],
+    onError: function (err, req, res, next) { next(createError(err.statusCode)); }    
+  };
+          
+  restify.serve(router, User, _.merge({}, defaults, userConfig, customizer));
+  restify.serve(router, Session, _.merge({}, defaults, sessionConfig, customizer));
+  
+  router.use(function(req, res, next) {
+    next(createError(404));
   });
 
-  restify.serve(router, Session, {
-    prefix: '',
-    name: 'sessions',
-    preMiddleware: [
-      auth.authenticate(),
-      auth.authorize(function(req) { return req.auth.isAdmin; })
-    ],
-    onError: function (err, req, res, next) { next(createError(err.statusCode)); }
-  });
-  
   return router;
   
+  function customizer(a, b) {
+    return (_.isArray(a)) ? a.concat(b) : undefined;
+  }
+    
 };

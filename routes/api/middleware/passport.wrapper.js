@@ -7,7 +7,6 @@ module.exports = function(config) {
   var LocalStrategy = require('passport-local');
   var mongoose = require('mongoose');
   var User = mongoose.model('User');
-  var Session = mongoose.model('Session');
   var createError = require('http-errors');
   var _ = require('lodash');
 
@@ -80,13 +79,8 @@ module.exports = function(config) {
             }
           }));
         }
-        Session.create({ userId: user._id }, function(err, Session) {
-          if (err) { return next(err); }
-          Session.generateJWT(function(err, jwt) {
-            if (err) { return next(err); }
-            return res.status(201).json({ token: jwt, user: user });
-          });
-        });
+        req.body.userId = user._id;
+        next();
       })(req, res, next);
     }
   }

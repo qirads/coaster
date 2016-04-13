@@ -3,6 +3,7 @@
 var fs = require('fs');
 
 module.exports = {
+  hostName: 'www.glass.org',
   ldapPath: 'ldap://www.glass.org:10389',
   dbPath: 'mongodb://www.glass.org/coaster',
   filePaths: {
@@ -13,6 +14,7 @@ module.exports = {
     certificate: fs.readFileSync('config/certs/dev-cert.pem')    
   },
   jwts: {
-    secretKey: fs.readFileSync('config/jwts/jwtSecretKey.txt')  
+    secretKey: fs.readFileSync('config/jwts/jwtSecretKey.txt'),
+    secondsToExpiration: 300  
   }
 };

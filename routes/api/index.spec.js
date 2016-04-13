@@ -4,10 +4,10 @@
 
 var request = require('request');
 
-var app = require('../lib/app');
-var config = require('../config');
+var app = require('../../lib/app');
+var config = require('../../config');
 var server = require('http').createServer(app);
-var baseUrl = 'http://' + config.hostName + ':3000/dummy.html';
+var baseUrl = 'http://' + config.hostName + ':3000/api/dummies';
 
 describe('unknown resource', function() {
 
@@ -24,23 +24,29 @@ describe('unknown resource', function() {
     
     var requestOptions = {
       url: baseUrl,
-      json: true
+      json: true,
+      body: {
+        stuff : {
+          innerStuff1 : 'dummyInnerStuff1',
+          innerStuff2 : 'dummyInnerStuff2'
+        }
+      }
     };
 
-    it('returns 301 as redirects to root', function(done) {
+    it('returns 404 as no resource found', function(done) {
       request.post(requestOptions, function(error, response) {
-        expect(response.statusCode).toBe(301);
+        expect(response.statusCode).toBe(404);
         done();
       });      
     });
     
   });
-  
+    
   describe('app spindown', function() {
     it('should be ok', function(done) {
       server.close();
       done();
     });
   });
-  
+
 });
