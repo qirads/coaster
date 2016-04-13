@@ -72,6 +72,11 @@ module.exports = function(app, config) {
     if (req.erm.document.state !== 'active') {
       return next(createError(400, 'Only active sessions can be modified.'));
     }
+    if (req.body.state === 'active') {
+      req.body.lastRefreshedAt = Date.now();
+    } else {
+      req.body.endedAt = Date.now();
+    } 
     next();
   }
 

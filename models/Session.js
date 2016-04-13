@@ -29,7 +29,6 @@ module.exports = function(config) {
     var self = this;
     User.findById(this.userId, function (err, user) {
       if (err) { return callback(err); }
-      self.lastRefreshedAt = Date.now();
       return callback(null, jwt.sign({
         isAdmin : user.isAdmin
       }, config.jwts.secretKey, {
@@ -41,7 +40,6 @@ module.exports = function(config) {
   }
   
   SessionSchema.methods.revoke = function() {
-    this.endedAt = Date.now();
     blacklist.revoke({ jti: this._id, sub: this.userId }, config.jwts.secondsToExpiration);
   }
   
