@@ -15,6 +15,7 @@ module.exports = function(config) {
   
   var SessionSchema = new mongoose.Schema( {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    hasAdminPrivileges: { type: Boolean, default: false },
     state: {
       type: String,
       default: 'active',
@@ -25,18 +26,14 @@ module.exports = function(config) {
     endedAt: { type: Date },    
   });
 
-  SessionSchema.methods.generateJWT = function(callback) {
-    var self = this;
-    User.findById(this.userId, function (err, user) {
-      if (err) { return callback(err); }
-      return callback(null, jwt.sign({
-        isAdmin : user.isAdmin
-      }, config.jwts.secretKey, {
-        subject : user._id,
-        jwtid: self._id,
-        expiresIn: config.jwts.secondsToExpiration * 1000
-      }));
-    });
+  SessionSchema.methods.generateJWT = function() {
+    this.set('token', jwt.sign({
+      hasAdminPrivileges : this.hasAdminPrivileges
+    }, config.jwts.secretKey, {
+      subject : this.userId,
+      jwtid: this._id,
+      expiresIn: config.jwts.secondsToExpiration * 1000
+    }), String, { strict: false });
   }
   
   SessionSchema.methods.revoke = function() {

@@ -7,6 +7,7 @@ module.exports = function() {
 
   var UserSchema = new mongoose.Schema( {
     userName: { type: String, lowercase: true, unique: true, required: true },
+    domain: { type: String, enum: [ 'CORP', 'local' ], default: 'local' },
     isAdmin: { type: Boolean, default: false },
     hash: { type: String, required: true },
     salt: { type: String, required: true }

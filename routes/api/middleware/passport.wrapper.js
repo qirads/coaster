@@ -80,6 +80,7 @@ module.exports = function(config) {
           }));
         }
         req.body.userId = user._id;
+        req.body.hasAdminPrivileges = user.isAdmin;
         next();
       })(req, res, next);
     }

@@ -8,10 +8,12 @@ var app = require('../../lib/app');
 
 var config = require('../../config');
 var server = require('http').createServer(app);
-var baseUrl = 'http://' + config.hostName + ':3000/api/v1/sessions';
+var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
 
 describe('sessions', function() {
 
+  var requestOptions;  
+    
   describe('app spinup', function() {
     it('should be ok', function(done) {
       server.listen(3000);
@@ -21,23 +23,15 @@ describe('sessions', function() {
     });
   });
 
-  describe('POST /', function() {
-    
-    var requestOptions;
+  describe('POST', function() {
     
     beforeEach(function() {
-      requestOptions = {
-        url: baseUrl,
-        json : true,
-        body: {
-          credentials : {}
-        }
-      };  
+      requestOptions = { url: baseUrl + 'sessions', json : true, body: { credentials: {} } };
     });
     
     it('returns status code 400 on missing userName', function(done) {
       requestOptions.body.credentials.password = 'wrong_password';
-          
+      
       request.post(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(400);
         done();
@@ -103,70 +97,60 @@ describe('sessions', function() {
         done();
       });
     });
-
-    it('returns status code 400 if state is not specified', function(done) {
-      requestOptions.body.credentials.userName = 'testUser';
-      requestOptions.body.credentials.password = 'testPassword';
-      
+    
+  });
+  
+  describe('PATCH', function() {
+        
+    beforeEach(function(done) {
+      requestOptions = { url: baseUrl + 'sessions', json : true, body: {
+        credentials: {
+          userName: 'testUser',
+          password: 'testPassword'
+        }
+      } };
       request.post(requestOptions, function(error, response) {
         requestOptions.url = requestOptions.url + '/' + response.body._id;
         requestOptions.body = {};
         requestOptions.headers = { Authorization: 'Bearer ' + response.body.token };
-        request.patch(requestOptions, function(error, response) {
-          expect(response.statusCode).toBe(400);
-          done();
-        });
+        done();
+      });
+    });
+    
+    it('returns status code 400 if state is not specified', function(done) {
+      request.patch(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(400);
+        done();
       });
     });
 
-    it('returns status code 400 if status is not allowed value', function(done) {
-      requestOptions.body.credentials.userName = 'testUser';
-      requestOptions.body.credentials.password = 'testPassword';
-      
-      request.post(requestOptions, function(error, response) {
-        requestOptions.url = requestOptions.url + '/' + response.body._id;
-        requestOptions.body = { state: 'foo' };
-        requestOptions.headers = { Authorization: 'Bearer ' + response.body.token };
-        request.patch(requestOptions, function(error, response) {
-          expect(response.statusCode).toBe(400);
-          done();
-        });
+    it('returns status code 400 if state is not allowed value', function(done) {
+      requestOptions.body = { state: 'foo' };
+      request.patch(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(400);
+        done();
       });
     });
 
     it('returns status code 200 and token if state is set to active', function(done) {
-      requestOptions.body.credentials.userName = 'testUser';
-      requestOptions.body.credentials.password = 'testPassword';
-      
-      request.post(requestOptions, function(error, response) {
-        requestOptions.url = requestOptions.url + '/' + response.body._id;
-        requestOptions.body = { state: 'active' };
-        requestOptions.headers = { Authorization: 'Bearer ' + response.body.token };
-        request.patch(requestOptions, function(error, response) {
-          expect(response.body.token).toBeDefined();
-          expect(response.statusCode).toBe(200);
-          done();
-        });
+      requestOptions.body = { state: 'active' };
+      request.patch(requestOptions, function(error, response) {
+        expect(response.body.token).toBeDefined();
+        expect(response.statusCode).toBe(200);
+        done();
       });
     });
 
-    it('returns status code 200 and no token if state is set to user-logged-out', function(done) {
-      requestOptions.body.credentials.userName = 'testUser';
-      requestOptions.body.credentials.password = 'testPassword';
-      
-      request.post(requestOptions, function(error, response) {
-        requestOptions.url = requestOptions.url + '/' + response.body._id;
-        requestOptions.body = { state: 'user-logged-out' };
-        requestOptions.headers = { Authorization: 'Bearer ' + response.body.token };
+    it('returns status code 200 and no token if state is set to user-logged-out and token no longer works', function(done) {
+      requestOptions.body = { state: 'user-logged-out' };
+      request.patch(requestOptions, function(error, response) {
+        expect(response.body.token).not.toBeDefined();
+        expect(response.statusCode).toBe(200);
+        requestOptions.body = { state: 'active' };
         request.patch(requestOptions, function(error, response) {
           expect(response.body.token).not.toBeDefined();
-          expect(response.statusCode).toBe(200);
-          requestOptions.body = { state: 'active' };
-          request.patch(requestOptions, function(error, response) {
-            expect(response.body.token).not.toBeDefined();
-            expect(response.statusCode).toBe(401);
-            done();
-          });
+          expect(response.statusCode).toBe(401);
+          done();
         });
       });
     });

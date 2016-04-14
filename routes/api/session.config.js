@@ -2,17 +2,16 @@
 
 module.exports = function(app, config) {
 
+  var mongoose = require('mongoose');
+  var Session = mongoose.model('Session');
   var client = require('redis').createClient();
   var limiter = require('express-limiter')(null, client);
   var createError = require('http-errors');
   var passportWrapper = require('./middleware/passport.wrapper')(config);
   var allowPatchOnly = require('./middleware/allowPatchOnly.middleware');
   var validate = require('./middleware/validate.middleware');
-  var mongoose = require('mongoose');
-  var Session = mongoose.model('Session');
   var contextFilter = require('./middleware/contextFilter.filter');
   var authenticate = require('./middleware/jwt.wrapper')(config);
-  var authorize = require('./middleware/authorize.middleware');
   var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
   
   var _ = require('lodash');
@@ -52,16 +51,13 @@ module.exports = function(app, config) {
   });
       
   function addToken(req, res, next) {
-    req.erm.result.generateJWT(function(err, token) {
-      if (err) { return next(err); }
-      if (req.erm.result.state === 'active') {
-        req.erm.result.set('token', token, String, { strict: false });      
-      }
-      next();
-    });
+    if (req.erm.result.state === 'active') {
+      req.erm.result.generateJWT();
+    }
+    next();
   }
   
-  function logout(req, res, next) {
+  function revoke(req, res, next) {
     if (req.erm.result.state === 'user-logged-out') {
       req.erm.result.revoke();
     }
@@ -84,12 +80,12 @@ module.exports = function(app, config) {
     name: 'sessions',
     preMiddleware: (app.get('env') === 'development') ? [] : limiterWrapper,
     preCreate: [ validateCreate, passportWrapper.initialize(), passportWrapper.authenticate() ],
-    postCreate: addToken,
+    postCreate: [ addToken ],
     contextFilter: contextFilter,
     preRead: [ authenticate ],
     findOneAndUpdate: false,
-    preUpdate: [ allowPatchOnly, authenticate, validateUpdate, checkState ],
-    postUpdate: [ addToken, logout ],
+    preUpdate: [ authenticate, allowPatchOnly, validateUpdate, checkState ],
+    postUpdate: [ addToken, revoke ],
     preRemove: [ authenticate, allowAdminOnly ]
   };  
     
