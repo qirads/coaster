@@ -9,6 +9,7 @@ module.exports = {
   filePaths: {
     rootCertificate: 'config/certs/dev-root-cert.pem'
   },
+  credentials: require('./credentials'),
   certs: {
     privateKey: fs.readFileSync('config/certs/dev-key.pem'),
     certificate: fs.readFileSync('config/certs/dev-cert.pem')    

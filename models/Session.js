@@ -18,8 +18,8 @@ module.exports = function(config) {
     hasAdminPrivileges: { type: Boolean, default: false },
     state: {
       type: String,
-      default: 'active',
-      enum: [ 'active', 'user-logged-out', 'user-timed-out', 'admin-logged-out' ]
+      default: 'open',
+      enum: [ 'open', 'user-logged-out', 'user-timed-out', 'user-revoked', 'admin-revoked' ]
     },
     createdAt: { type: Date, required: true, default: Date.now },
     lastRefreshedAt: { type: Date, required: true, default: Date.now },

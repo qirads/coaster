@@ -16,10 +16,15 @@ module.exports = function(app, config) {
   var defaults = {
     prefix: '',
     allowRegex: false,
-    private: ['__v'],
-    onError: function (err, req, res, next) { next(createError(err.statusCode)); }    
+    private: ['__v']    
   };
-          
+  
+  if (app.get('env') !== 'development') {
+    defaults.onError = function (err, req, res, next) {
+      next(createError(err.statusCode));
+    }
+  }
+  
   restify.serve(router, User, _.merge({}, defaults, userConfig, customizer));
   restify.serve(router, Session, _.merge({}, defaults, sessionConfig, customizer));
   

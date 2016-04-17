@@ -9,8 +9,8 @@ module.exports = function() {
     userName: { type: String, lowercase: true, unique: true, required: true },
     domain: { type: String, enum: [ 'CORP', 'local' ], default: 'local' },
     isAdmin: { type: Boolean, default: false },
-    hash: { type: String, required: true },
-    salt: { type: String, required: true }
+    hash: { type: String },
+    salt: { type: String }
   });
 
   UserSchema.virtual('password').set(setPassword);

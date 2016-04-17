@@ -5,6 +5,7 @@
 var request = require('request');
 
 var app = require('../lib/app');
+var errorHandler = require('../lib/express-error-handler.wrapper')(app);
 var config = require('../config');
 var server = require('http').createServer(app);
 var baseUrl = 'http://' + config.hostName + ':3000/dummy.html';
@@ -13,6 +14,7 @@ describe('unknown resource', function() {
 
   describe('app spinup', function() {
     it('should be ok', function(done) {
+      app.use(errorHandler(server));
       server.listen(3000);
       server.on('listening', function() {
         done();

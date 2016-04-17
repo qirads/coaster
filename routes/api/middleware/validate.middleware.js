@@ -9,7 +9,6 @@ module.exports = function(schema) {
     var details = [];
     
     validateFields(req.body, schema, details, '');
-          
     if (_.size(details)) {
       return next(createError(400, 'Invalid request', { details: details }));
     }
@@ -55,10 +54,10 @@ module.exports = function(schema) {
     if (fieldSchema.required && !body[fieldSchema.name]) {
       fieldErrors.push('missing required field');
     }
-    if (fieldSchema.type != typeof body[fieldSchema.name]) {
+    if (body[fieldSchema.name] && fieldSchema.type != typeof body[fieldSchema.name]) {
       fieldErrors.push('unexpected field type');
     }
-    if (fieldSchema.allowedValues && !_.includes(fieldSchema.allowedValues, body[fieldSchema.name])) {
+    if (body[fieldSchema.name] && fieldSchema.allowedValues && !_.includes(fieldSchema.allowedValues, body[fieldSchema.name])) {
       fieldErrors.push('value not allowed');
     }
     if (_.size(fieldErrors)) {

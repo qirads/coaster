@@ -51,7 +51,7 @@ module.exports = function(app, config) {
   });
       
   function addToken(req, res, next) {
-    if (req.erm.result.state === 'active') {
+    if (req.erm.result.state === 'open') {
       req.erm.result.generateJWT();
     }
     next();
@@ -64,11 +64,15 @@ module.exports = function(app, config) {
     next();
   }  
   
-  function checkState(req, res, next) {
-    if (req.erm.document.state !== 'active') {
-      return next(createError(400, 'Only active sessions can be modified.'));
+  function checkDocument(req, res, next) {
+    if (req.erm.document.state !== 'open') {
+      return next(createError(400, 'Only open sessions can be modified.'));
     }
-    if (req.body.state === 'active') {
+    next();
+  }  
+  
+  function updateTimestamps(req, res, next) {    
+    if (req.body.state === 'open') {
       req.body.lastRefreshedAt = Date.now();
     } else {
       req.body.endedAt = Date.now();
@@ -84,7 +88,7 @@ module.exports = function(app, config) {
     contextFilter: contextFilter,
     preRead: [ authenticate ],
     findOneAndUpdate: false,
-    preUpdate: [ authenticate, allowPatchOnly, validateUpdate, checkState ],
+    preUpdate: [ authenticate, allowPatchOnly, validateUpdate, checkDocument, updateTimestamps ],
     postUpdate: [ addToken, revoke ],
     preRemove: [ authenticate, allowAdminOnly ]
   };  

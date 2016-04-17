@@ -20,7 +20,8 @@ gulp.task('develop', ['lint'], function () {
 
 gulp.task('test', ['lint'], function () {
 	return gulp.src(['**/*.spec.js','!node_modules/**'])
-		.pipe($.jasmineNode());
+		.pipe($.jasmine({ verbose: true, captureExceptions: true }))
+    .pipe($.exit());
 });
 
 gulp.task('default', [ 'develop' ]);

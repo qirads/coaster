@@ -5,7 +5,7 @@
 var request = require('request');
 
 var app = require('../../lib/app');
-
+var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
 var config = require('../../config');
 var server = require('http').createServer(app);
 var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
@@ -16,6 +16,7 @@ describe('sessions', function() {
     
   describe('app spinup', function() {
     it('should be ok', function(done) {
+      app.use(errorHandler(server));
       server.listen(3000);
       server.on('listening', function() {
         done();
@@ -88,11 +89,11 @@ describe('sessions', function() {
     });
 
     it('returns status code 200 and token with good credentials', function(done) {
-      requestOptions.body.credentials.userName = 'testUser';
-      requestOptions.body.credentials.password = 'testPassword';
+      requestOptions.body.credentials.userName = config.credentials.adminUserName;
+      requestOptions.body.credentials.password = config.credentials.adminPassword;
       
-      request.post(requestOptions, function(error, response) {
-        expect(response.body.token).toBeDefined();
+      request.post(requestOptions, function(error, response, body) {
+        expect(body.token).toBeDefined();
         expect(response.statusCode).toBe(201);
         done();
       });
@@ -105,14 +106,14 @@ describe('sessions', function() {
     beforeEach(function(done) {
       requestOptions = { url: baseUrl + 'sessions', json : true, body: {
         credentials: {
-          userName: 'testUser',
-          password: 'testPassword'
+          userName: config.credentials.adminUserName,
+          password: config.credentials.adminPassword
         }
       } };
-      request.post(requestOptions, function(error, response) {
-        requestOptions.url = requestOptions.url + '/' + response.body._id;
+      request.post(requestOptions, function(error, response, body) {
+        requestOptions.url = requestOptions.url + '/' + body._id;
         requestOptions.body = {};
-        requestOptions.headers = { Authorization: 'Bearer ' + response.body.token };
+        requestOptions.headers = { Authorization: 'Bearer ' + body.token };
         done();
       });
     });
@@ -132,10 +133,10 @@ describe('sessions', function() {
       });
     });
 
-    it('returns status code 200 and token if state is set to active', function(done) {
-      requestOptions.body = { state: 'active' };
-      request.patch(requestOptions, function(error, response) {
-        expect(response.body.token).toBeDefined();
+    it('returns status code 200 and token if state is set to open', function(done) {
+      requestOptions.body = { state: 'open' };
+      request.patch(requestOptions, function(error, response, body) {
+        expect(body.token).toBeDefined();
         expect(response.statusCode).toBe(200);
         done();
       });
@@ -143,12 +144,12 @@ describe('sessions', function() {
 
     it('returns status code 200 and no token if state is set to user-logged-out and token no longer works', function(done) {
       requestOptions.body = { state: 'user-logged-out' };
-      request.patch(requestOptions, function(error, response) {
-        expect(response.body.token).not.toBeDefined();
+      request.patch(requestOptions, function(error, response, body) {
+        expect(body.token).not.toBeDefined();
         expect(response.statusCode).toBe(200);
-        requestOptions.body = { state: 'active' };
-        request.patch(requestOptions, function(error, response) {
-          expect(response.body.token).not.toBeDefined();
+        requestOptions.body = { state: 'open' };
+        request.patch(requestOptions, function(error, response, body) {
+          expect(body.token).not.toBeDefined();
           expect(response.statusCode).toBe(401);
           done();
         });
