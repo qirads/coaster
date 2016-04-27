@@ -101,7 +101,7 @@ describe('sessions', function() {
     
   });
   
-  describe('PATCH', function() {
+  describe('PATCH, GET', function() {
         
     beforeEach(function(done) {
       requestOptions = { url: baseUrl + 'sessions', json : true, body: {
@@ -118,6 +118,14 @@ describe('sessions', function() {
       });
     });
     
+    it('returns status code 200 on GET', function(done) {
+      delete requestOptions.body;
+      request.get(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(200);
+        done();
+      });
+    });
+        
     it('returns status code 400 if state is not specified', function(done) {
       request.patch(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(400);

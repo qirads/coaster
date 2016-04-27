@@ -36,7 +36,7 @@ module.exports = function(config) {
   function ldapVerify(user, done) {
     User.findOne({ userName: { $eq: user.uid } }, function (err, user) {
       if (err) { return done(err); }
-      if (!user) {
+      if (!user || !user.activated ) {
         return done(null, false, { message: 'User not activated' });
       }
       return done(null, user);
@@ -48,12 +48,14 @@ module.exports = function(config) {
       if (err) { return done(err); }
       if (!user) {
         return done(null, false, { message: 'User not found' });
-      } else {
-        if (!user.matchesHash(password)) {
-          return done(null, false, { message: 'Invalid username/password' });
-        }
-        return done(null, user);
       }
+      if (!user.matchesHash(password)) {
+        return done(null, false, { message: 'Invalid username/password' });
+      }
+      if (!user.activated ) {
+        return done(null, false, { message: 'User not activated' });
+      }
+      return done(null, user);
     });    
   }
 

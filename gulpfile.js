@@ -18,7 +18,7 @@ gulp.task('develop', ['lint'], function () {
   });
 });
 
-gulp.task('test', ['lint'], function () {
+gulp.task('test', function () {
 	return gulp.src(['**/*.spec.js','!node_modules/**'])
 		.pipe($.jasmine({ verbose: true, captureExceptions: true }))
     .pipe($.exit());

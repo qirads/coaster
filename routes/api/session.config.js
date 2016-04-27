@@ -13,7 +13,8 @@ module.exports = function(app, config) {
   var contextFilter = require('./middleware/contextFilter.filter');
   var authenticate = require('./middleware/jwt.wrapper')(config);
   var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
-  
+  var authorize = require('./middleware/authorize.middleware');
+    
   var _ = require('lodash');
   
   var validateCreate = validate([{
@@ -49,20 +50,30 @@ module.exports = function(app, config) {
     total: 10,
     expire: 1000 * 10
   });
-      
-  function addToken(req, res, next) {
+  
+  function updateTokens(req, res, next) {
     if (req.erm.result.state === 'open') {
-      req.erm.result.generateJWT();
+      if (req.auth === undefined || req.auth.jti === req.params.id) {
+        req.erm.result.generateJWT();
+      }
+    } else {
+      req.erm.result.revoke();
     }
     next();
   }
   
-  function revoke(req, res, next) {
-    if (req.erm.result.state === 'user-logged-out') {
-      req.erm.result.revoke();
-    }
+  function revokeTokens(req, res, next) {
+    req.erm.result.revoke();
     next();
-  }  
+  }
+  
+  var authorizeAccess = authorize(function(req) {
+    return req.auth.hasAdminPrivileges || req.auth.jti === req.params.id;
+  });
+
+  var authorizeAdminUpdate = authorize(function(req) {
+    return req.auth.hasAdminPrivileges || req.body.state.substr(0, 'admin'.length) !== 'admin';
+  });
   
   function checkDocument(req, res, next) {
     if (req.erm.document.state !== 'open') {
@@ -84,13 +95,17 @@ module.exports = function(app, config) {
     name: 'sessions',
     preMiddleware: (app.get('env') === 'development') ? [] : limiterWrapper,
     preCreate: [ validateCreate, passportWrapper.initialize(), passportWrapper.authenticate() ],
-    postCreate: [ addToken ],
+    postCreate: [ updateTokens ],
     contextFilter: contextFilter,
-    preRead: [ authenticate ],
+    preRead: [ authenticate, authorizeAccess ],
     findOneAndUpdate: false,
-    preUpdate: [ authenticate, allowPatchOnly, validateUpdate, checkDocument, updateTimestamps ],
-    postUpdate: [ addToken, revoke ],
-    preRemove: [ authenticate, allowAdminOnly ]
+    preUpdate: [
+      authenticate, authorizeAccess, allowPatchOnly, validateUpdate, authorizeAdminUpdate,
+      checkDocument, updateTimestamps
+    ],
+    postUpdate: [ updateTokens ],
+    preRemove: [ authenticate, allowAdminOnly ],
+    postRemove: [ revokeTokens ],
   };  
     
   return options;

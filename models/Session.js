@@ -5,7 +5,6 @@ module.exports = function(config) {
   var mongoose = require('mongoose');
   var jwt = require('jsonwebtoken');
   var blacklist = require('express-jwt-blacklist');
-  var User = mongoose.model('User');
 
   blacklist.configure({
     tokenId: 'sub',
