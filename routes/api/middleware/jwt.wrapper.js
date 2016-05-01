@@ -1,16 +1,10 @@
 'use strict';
 
-module.exports = function(config) {
+module.exports = function(config, client) {
   
   var jwt = require('express-jwt');
-  var blacklist = require('express-jwt-blacklist');
-
-  blacklist.configure({
-    tokenId: 'sub',
-    indexBy: 'jti',
-    store: { type: 'redis' }
-  });
-  
+  var blacklist = require('../../../lib/blacklist.wrapper')(client);
+    
   return jwt({
     requestProperty: 'auth',
     secret: config.jwts.secretKey,

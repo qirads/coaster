@@ -1,13 +1,13 @@
 'use strict';
 
-module.exports = function(app, config) {
+module.exports = function(app, config, clients) {
 
   var mongoose = require('mongoose');
   var User = mongoose.model('User');
   var createError = require('http-errors');
   var allowPatchOnly = require('./middleware/allowPatchOnly.middleware');
   var validate = require('./middleware/validate.middleware');
-  var authenticate = require('./middleware/jwt.wrapper')(config);
+  var authenticate = require('./middleware/jwt.wrapper')(config, clients.redis);
   var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
   var authorize = require('./middleware/authorize.middleware');
         

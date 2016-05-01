@@ -1,11 +1,11 @@
 'use strict';
 
-module.exports = function(config) {
+module.exports = function(config, clients) {
 
   var _ = require('lodash');
 
   _.forEach(['User', 'Session'], function(value) {
-    require('./' + value)(config);
+    require('./' + value)(config, clients);
   });
 
 };

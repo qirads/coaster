@@ -1,17 +1,11 @@
 'use strict';
 
-module.exports = function(config) {
+module.exports = function(config, clients) {
 
   var mongoose = require('mongoose');
   var jwt = require('jsonwebtoken');
-  var blacklist = require('express-jwt-blacklist');
-
-  blacklist.configure({
-    tokenId: 'sub',
-    indexBy: 'jti',
-    store: { type: 'redis' }
-  });
-  
+  var blacklist = require('../lib/blacklist.wrapper')(clients.redis);
+    
   var SessionSchema = new mongoose.Schema( {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     hasAdminPrivileges: { type: Boolean, default: false },

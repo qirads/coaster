@@ -1,18 +1,12 @@
 'use strict';
 
-module.exports = function(config) {
+module.exports = function(config, clients) {
 
   var mongoose = require('mongoose');
   var crypto = require('crypto');
   var jwt = require('jsonwebtoken');
-  var blacklist = require('express-jwt-blacklist');
-
-  blacklist.configure({
-    tokenId: 'sub',
-    indexBy: 'jti',
-    store: { type: 'redis' }
-  });
-
+  var blacklist = require('../lib/blacklist.wrapper')(clients.redis);
+  
   var UserSchema = new mongoose.Schema( {
     userName: { type: String, lowercase: true, unique: true, required: true },
     domain: { type: String, enum: [ 'CORP', 'local' ], default: 'local' },

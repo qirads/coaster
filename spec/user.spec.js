@@ -4,9 +4,9 @@
 
 var request = require('request');
 
-var app = require('../../lib/app');
-var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
-var config = require('../../config');
+var app = require('../lib/app');
+var errorHandler = require('../lib/express-error-handler.wrapper')(app);
+var config = require('../config');
 var server = require('http').createServer(app);
 var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
 
@@ -20,8 +20,8 @@ describe('users', function() {
       server.listen(3000);
       server.on('listening', function() {
         requestOptions = { url: baseUrl + 'sessions', json : true, body: { credentials: {} } };
-        requestOptions.body.credentials.userName = config.credentials.adminUserName;
-        requestOptions.body.credentials.password = config.credentials.adminPassword;
+        requestOptions.body.credentials.userName = config.credentials.admin.userName;
+        requestOptions.body.credentials.password = config.credentials.admin.password;
         request.post(requestOptions, function(error, response, body) {
           adminToken = body.token;
           requestOptions.url = baseUrl + 'users';
@@ -156,11 +156,10 @@ describe('users', function() {
       });
     });
 
-    it('returns status code 200 on PATCH for local user using user credentials', function(done) {
+    it('returns status code 200 on PATCH for local user using local user credentials', function(done) {
       requestOptions.url = baseUrl + 'sessions';
       requestOptions.body.credentials = { userName: 'ephemeral', password: 'veryephemeral' };
       request.post(requestOptions, function(error, response, body) {
-        console.log(body.details);
         requestOptions.url = baseUrl + 'users/' + localUserId;
         requestOptions.headers = { Authorization: 'Bearer ' + body.token };
         requestOptions.body = { password: 'veryephemeral2' };
@@ -171,7 +170,7 @@ describe('users', function() {
       });
     });
 
-    it('returns status code 403 on PATCH for non-local user', function(done) {
+    it('returns status code 403 on PATCH for non-local user using local user credentials', function(done) {
       requestOptions.url = baseUrl + 'users/' + nonLocalUserId;
       requestOptions.body.password = 'veryephemeral';
       request.patch(requestOptions, function(error, response) {
@@ -182,7 +181,6 @@ describe('users', function() {
 
     it('returns status code 400 on PATCH for non-local user', function(done) {
       requestOptions.headers = { Authorization: 'Bearer ' + adminToken };
-      requestOptions.url = baseUrl + 'users/' + nonLocalUserId;
       requestOptions.body.password = 'veryephemeral';
       request.patch(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(400);
@@ -210,8 +208,9 @@ describe('users', function() {
     
   describe('app spindown', function() {
     it('should be ok', function(done) {
-      server.close();
-      done();
+      server.close(function() {
+        done();        
+      });
     });
   });
   

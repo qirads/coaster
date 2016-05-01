@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(app, config) {
+module.exports = function(app, config, clients) {
 
   var utils = require('../utils');
   var path = require('path');
@@ -9,7 +9,7 @@ module.exports = function(app, config) {
   // setup routes
   utils.forEachSubdir(__dirname, function(dir) {
     var route = path.basename(dir);
-    app.use('/' + route, require('./' + route)(app, config));
+    app.use('/' + route, require('./' + route)(app, config, clients));
   });
 
   // redirect any unmatched routes to root

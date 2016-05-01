@@ -4,15 +4,17 @@
 
 var request = require('request');
 
-var app = require('../../lib/app');
-var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
-var config = require('../../config');
+var app = require('../lib/app');
+var errorHandler = require('../lib/express-error-handler.wrapper')(app);
+var config = require('../config');
 var server = require('http').createServer(app);
 var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
 
 describe('sessions', function() {
 
-  var requestOptions;  
+  var requestOptions;
+
+  requestOptions = { url: baseUrl + 'sessions', json : true, body: {} };
     
   describe('app spinup', function() {
     it('should be ok', function(done) {
@@ -27,7 +29,7 @@ describe('sessions', function() {
   describe('POST', function() {
     
     beforeEach(function() {
-      requestOptions = { url: baseUrl + 'sessions', json : true, body: { credentials: {} } };
+      requestOptions.body = { credentials: {} };
     });
     
     it('returns status code 400 on missing userName', function(done) {
@@ -89,11 +91,14 @@ describe('sessions', function() {
     });
 
     it('returns status code 200 and token with good credentials', function(done) {
-      requestOptions.body.credentials.userName = config.credentials.adminUserName;
-      requestOptions.body.credentials.password = config.credentials.adminPassword;
+      requestOptions.body.credentials.userName = config.credentials.admin.userName;
+      requestOptions.body.credentials.password = config.credentials.admin.password;
       
       request.post(requestOptions, function(error, response, body) {
         expect(body.token).toBeDefined();
+        requestOptions.url = requestOptions.url + '/' + body._id;
+        requestOptions.body = {};
+        requestOptions.headers = { Authorization: 'Bearer ' + body.token };
         expect(response.statusCode).toBe(201);
         done();
       });
@@ -103,21 +108,6 @@ describe('sessions', function() {
   
   describe('PATCH, GET', function() {
         
-    beforeEach(function(done) {
-      requestOptions = { url: baseUrl + 'sessions', json : true, body: {
-        credentials: {
-          userName: config.credentials.adminUserName,
-          password: config.credentials.adminPassword
-        }
-      } };
-      request.post(requestOptions, function(error, response, body) {
-        requestOptions.url = requestOptions.url + '/' + body._id;
-        requestOptions.body = {};
-        requestOptions.headers = { Authorization: 'Bearer ' + body.token };
-        done();
-      });
-    });
-    
     it('returns status code 200 on GET', function(done) {
       delete requestOptions.body;
       request.get(requestOptions, function(error, response) {
@@ -168,9 +158,10 @@ describe('sessions', function() {
     
   describe('app spindown', function() {
     it('should be ok', function(done) {
-      server.close();
-      done();
+      server.close(function() {
+        done();        
+      });
     });
   });
-  
+    
 });

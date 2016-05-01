@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs');
+var credentials = require('./credentials');
 
 module.exports = {
   hostName: 'www.glass.org',
@@ -9,10 +10,11 @@ module.exports = {
   filePaths: {
     rootCertificate: 'config/certs/dev-root-cert.pem'
   },
-  credentials: require('./credentials'),
+  credentials: credentials,
   certs: {
     privateKey: fs.readFileSync('config/certs/dev-key.pem'),
-    certificate: fs.readFileSync('config/certs/dev-cert.pem')    
+    certificate: fs.readFileSync('config/certs/dev-cert.pem'),
+    rootCertificate: fs.readFileSync('config/certs/dev-root-cert.pem')
   },
   jwts: {
     secretKey: fs.readFileSync('config/jwts/jwtSecretKey.txt'),

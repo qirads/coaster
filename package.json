@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "gulp test"
+    "develop": "nodemon ./bin/www",
+    "lint": "eslint --debug --no-eslintrc --ignore-pattern node_modules .",
+    "test": "jasmine-node --verbose --forceexit --captureExceptions spec"
   },
   "dependencies": {
     "body-parser": "^1.13.3",
@@ -27,14 +29,9 @@
     "serve-favicon": "^2.3.0"
   },
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-eslint": "^1.1.1",
-    "gulp-exit": "0.0.2",
-    "gulp-jasmine": "^2.3.0",
-    "gulp-load-plugins": "^1.1.0",
-    "gulp-nodemon": "^2.0.2",
-    "gulp-livereload": "^3.8.0",
-    "gulp-plumber": "^1.0.0",
+    "eslint": "^2.9.0",
+    "jasmine-node": "^1.14.5",
+    "nodemon": "^1.9.2",
     "pem": "^1.8.1",
     "request": "^2.67.0",
     "ssl-root-cas": "^1.1.10"

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(app, config) {
+module.exports = function(app, config, clients) {
 
   var express = require('express');
   var router = express.Router();
@@ -8,8 +8,8 @@ module.exports = function(app, config) {
   var mongoose = require('mongoose');
   var User = mongoose.model('User');
   var Session = mongoose.model('Session');
-  var userConfig = require('./user.config')(app, config);
-  var sessionConfig = require('./session.config')(app, config);
+  var userConfig = require('./user.config')(app, config, clients);
+  var sessionConfig = require('./session.config')(app, config, clients);
   var createError = require('http-errors');  
   var _ = require('lodash');
   

@@ -1,17 +1,16 @@
 'use strict';
 
-module.exports = function(app, config) {
+module.exports = function(app, config, clients) {
 
   var mongoose = require('mongoose');
   var Session = mongoose.model('Session');
-  var client = require('redis').createClient();
-  var limiter = require('express-limiter')(null, client);
+  var limiter = require('express-limiter')(null, clients.redis);
   var createError = require('http-errors');
   var passportWrapper = require('./middleware/passport.wrapper')(config);
   var allowPatchOnly = require('./middleware/allowPatchOnly.middleware');
   var validate = require('./middleware/validate.middleware');
   var contextFilter = require('./middleware/contextFilter.filter');
-  var authenticate = require('./middleware/jwt.wrapper')(config);
+  var authenticate = require('./middleware/jwt.wrapper')(config, clients.redis);
   var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
   var authorize = require('./middleware/authorize.middleware');
     
