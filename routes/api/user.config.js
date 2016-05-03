@@ -69,8 +69,8 @@ module.exports = function(app, config, clients) {
   
   function updateTokens(req, res, next) {
     if (req.body.password !== undefined && req.auth.sub === req.params.id) {
-      req.erm.result.generateJWT(req.auth.jti);
       req.erm.result.purge();
+      req.erm.result.generateJWT(req.auth.jti);
     }
     next();
   }

@@ -4,15 +4,15 @@
 
 var request = require('request');
 
-var app = require('../lib/app');
-var errorHandler = require('../lib/express-error-handler.wrapper')(app);
-var config = require('../config');
+var app = require('../../lib/app');
+var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
+var config = require('../../config');
 var server = require('http').createServer(app);
 var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
 
 describe('sessions', function() {
 
-  var requestOptions;
+  var requestOptions, adminSessionId, adminToken, nonAdminUserId, nonAdminSessionId, nonAdminToken;
 
   requestOptions = { url: baseUrl + 'sessions', json : true, body: {} };
     
@@ -89,34 +89,99 @@ describe('sessions', function() {
         done();
       });
     });
-
-    it('returns status code 200 and token with good credentials', function(done) {
+    
+    it('returns status code 201 and token with good credentials', function(done) {
       requestOptions.body.credentials.userName = config.credentials.admin.userName;
       requestOptions.body.credentials.password = config.credentials.admin.password;
-      
       request.post(requestOptions, function(error, response, body) {
         expect(body.token).toBeDefined();
-        requestOptions.url = requestOptions.url + '/' + body._id;
-        requestOptions.body = {};
-        requestOptions.headers = { Authorization: 'Bearer ' + body.token };
+        adminSessionId = body._id;
+        adminToken = body.token;
+        requestOptions.headers = { Authorization: 'Bearer ' + adminToken };
         expect(response.statusCode).toBe(201);
+        requestOptions.url = baseUrl + 'users';
+        requestOptions.body = { userName: 'ephemeral', password: 'ephemeral', activated: true };
+        request.post(requestOptions, function(error, response, body) {
+          expect(response.statusCode).toBe(201);
+          nonAdminUserId = body._id;
+          delete requestOptions.headers;
+          requestOptions.url = baseUrl + 'sessions';
+          requestOptions.body = { credentials: { userName: 'ephemeral', password: 'ephemeral' } };
+          request.post(requestOptions, function(error, response, body) {
+            expect(response.statusCode).toBe(201);
+            nonAdminSessionId = body._id;
+            nonAdminToken = body.token;
+            done();
+          });
+        });
+      });
+    });
+        
+  });
+  
+  describe('GET', function() {
+
+    it('returns status code 401 without token', function(done) {
+      requestOptions.url = baseUrl + 'sessions' + '/' + adminSessionId;
+      delete requestOptions.body;
+      request.get(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(401);
         done();
       });
     });
-    
-  });
-  
-  describe('PATCH, GET', function() {
-        
-    it('returns status code 200 on GET', function(done) {
-      delete requestOptions.body;
+
+    it('returns status code 403 for admin session using non-admin token', function(done) {
+      requestOptions.headers = { Authorization: 'Bearer ' + nonAdminToken };
+      requestOptions.url = baseUrl + 'sessions' + '/' + adminSessionId;
+      request.get(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(403);
+        done();
+      });
+    });
+
+    it('returns status code 200 for non-admin session using non-admin token', function(done) {
+      requestOptions.headers = { Authorization: 'Bearer ' + nonAdminToken };
+      requestOptions.url = baseUrl + 'sessions' + '/' + nonAdminSessionId;
       request.get(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(200);
         done();
       });
     });
+
+    it('returns status code 200 for non-admin session using admin token', function(done) {
+      requestOptions.headers = { Authorization: 'Bearer ' + adminToken };
+      requestOptions.url = baseUrl + 'sessions' + '/' + nonAdminSessionId;
+      request.get(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(200);
+        done();
+      });
+    });
+
+  });
+  
+  describe('PATCH', function() {
         
+    it('returns status code 401 if no token is specified', function(done) {
+      delete requestOptions.headers;
+      requestOptions.body = {};
+      request.patch(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(401);
+        done();
+      });
+    });
+
+    it('returns status code 403 for admin session with non-Admin token', function(done) {
+      requestOptions.headers = { Authorization: 'Bearer ' + nonAdminToken };
+      requestOptions.url = baseUrl + 'sessions' + '/' + adminSessionId;
+      request.patch(requestOptions, function(error, response) {
+        expect(response.statusCode).toBe(403);
+        done();
+      });
+    });
+
     it('returns status code 400 if state is not specified', function(done) {
+      requestOptions.headers = { Authorization: 'Bearer ' + adminToken };
+      requestOptions.url = baseUrl + 'sessions' + '/' + nonAdminSessionId;
       request.patch(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(400);
         done();
@@ -130,8 +195,17 @@ describe('sessions', function() {
         done();
       });
     });
+    
+    it('returns status code 200 if state is set to open', function(done) {
+      requestOptions.body = { state: 'open' };
+      request.patch(requestOptions, function(error, response, body) {
+        expect(response.statusCode).toBe(200);
+        done();
+      });
+    });
 
-    it('returns status code 200 and token if state is set to open', function(done) {
+    it('returns status code 200 and token if state is set to open and session is for current user', function(done) {
+      requestOptions.headers = { Authorization: 'Bearer ' + nonAdminToken };
       requestOptions.body = { state: 'open' };
       request.patch(requestOptions, function(error, response, body) {
         expect(body.token).toBeDefined();
@@ -155,11 +229,17 @@ describe('sessions', function() {
     });
     
   });
-    
+  
   describe('app spindown', function() {
     it('should be ok', function(done) {
-      server.close(function() {
-        done();        
+      requestOptions.headers = { Authorization: 'Bearer ' + adminToken };
+      requestOptions.url = baseUrl + 'users/' + nonAdminUserId;
+      delete requestOptions.body;
+      request.del(requestOptions, function(error, response, body) {
+        expect(response.statusCode).toBe(204);
+        server.close(function() {
+          done();
+       });
       });
     });
   });

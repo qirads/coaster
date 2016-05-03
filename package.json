@@ -5,7 +5,7 @@
     "start": "node ./bin/www",
     "develop": "nodemon ./bin/www",
     "lint": "eslint --debug --no-eslintrc --ignore-pattern node_modules .",
-    "test": "jasmine-node --verbose --forceexit --captureExceptions spec"
+    "test": "jasmine-node --verbose --forceexit --captureExceptions models routes"
   },
   "dependencies": {
     "body-parser": "^1.13.3",
@@ -26,14 +26,13 @@
     "passport-ldapauth": "^0.5.0",
     "passport-local": "^1.0.0",
     "redis": "^2.4.2",
-    "serve-favicon": "^2.3.0"
+    "serve-favicon": "^2.3.0",
+    "ssl-root-cas": "^1.1.10"
   },
   "devDependencies": {
     "eslint": "^2.9.0",
     "jasmine-node": "^1.14.5",
     "nodemon": "^1.9.2",
-    "pem": "^1.8.1",
-    "request": "^2.67.0",
-    "ssl-root-cas": "^1.1.10"
+    "request": "^2.67.0"
   }
 }
