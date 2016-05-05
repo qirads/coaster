@@ -18,7 +18,9 @@ module.exports = function(config, clients) {
 
   UserSchema.virtual('password').set(setPassword);
   UserSchema.methods.matchesHash = matchesHash;
-
+  UserSchema.methods.generateJWT = generateJWT;
+  UserSchema.methods.purge = purge;
+  
   ['toJSON', 'toObject'].forEach(function (prop) {
     UserSchema.set(prop, {
       transform: function (doc, ret) {
@@ -28,20 +30,6 @@ module.exports = function(config, clients) {
     });
   });
   
-  UserSchema.methods.generateJWT = function(sessionId) {
-    this.set('token', jwt.sign({
-      hasAdminPrivileges : this.isAdmin
-    }, config.jwts.secretKey, {
-      subject : this._id,
-      jwtid: sessionId,
-      expiresIn: config.jwts.secondsToExpiration * 1000
-    }), String, { strict: false });
-  }
-  
-  UserSchema.methods.purge = function() {
-    blacklist.purge({ sub: this._id }, config.jwts.secondsToExpiration);
-  }  
-
   mongoose.model('User', UserSchema);
 
   function setPassword(password) {
@@ -54,4 +42,18 @@ module.exports = function(config, clients) {
     return this.hash === hash;
   }
   
+  function generateJWT(sessionId) {
+    this.set('token', jwt.sign({
+      hasAdminPrivileges : this.isAdmin
+    }, config.jwts.secretKey, {
+      subject : this._id,
+      jwtid: sessionId,
+      expiresIn: config.jwts.secondsToExpiration * 1000
+    }), String, { strict: false });
+  }
+  
+  function purge() {
+    blacklist.purge({ sub: this._id }, config.jwts.secondsToExpiration);
+  }  
+
 }

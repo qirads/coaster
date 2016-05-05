@@ -63,7 +63,7 @@ describe('sessions', function() {
     it('returns status code 400 on wrong password type', function(done) {
       requestOptions.body.credentials.userName = 'yaacov.rydzinski';
       requestOptions.body.credentials.password = 5;
-          
+      
       request.post(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(400);
         done();
