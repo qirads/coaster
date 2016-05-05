@@ -30,10 +30,10 @@ module.exports = function(schema) {
           });            
         }
       } else {
-        validateField(body, fieldSchema, details, '');
+        validateField(body, fieldSchema, details, prefix);
       }
     });
-    checkExtraneousFields(body, schema, details, '');
+    checkExtraneousFields(body, schema, details, prefix);
   }
   
   function checkExtraneousFields(body, schema, details, prefix) {
