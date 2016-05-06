@@ -10,7 +10,6 @@ module.exports = function(schema) {
     
     validateFields(req.body, schema, details, '');
     if (_.size(details)) {
-      console.log(details);
       return next(createError(400, 'Invalid request', { details: details }));
     }
     next();
