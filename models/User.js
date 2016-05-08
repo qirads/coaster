@@ -7,7 +7,7 @@ module.exports = function(config, clients) {
   var jwt = require('jsonwebtoken');
   var blacklist = require('../lib/blacklist.wrapper')(clients.redis);
   
-  var UserSchema = new mongoose.Schema( {
+  var UserSchema = new mongoose.Schema({
     userName: { type: String, lowercase: true, unique: true, required: true },
     domain: { type: String, enum: [ 'CORP', 'local' ], default: 'local' },
     isAdmin: { type: Boolean, default: false },

@@ -6,10 +6,6 @@ module.exports = function(app, config, clients) {
   var router = express.Router();
   var restify = require('express-restify-mongoose');
   var mongoose = require('mongoose');
-  var User = mongoose.model('User');
-  var Session = mongoose.model('Session');
-  var userConfig = require('./user.config')(app, config, clients);
-  var sessionConfig = require('./session.config')(app, config, clients);
   var createError = require('http-errors');  
   var _ = require('lodash');
   
@@ -25,8 +21,12 @@ module.exports = function(app, config, clients) {
     }
   }
   
-  restify.serve(router, User, _.merge({}, defaults, userConfig, customizer));
-  restify.serve(router, Session, _.merge({}, defaults, sessionConfig, customizer));
+  _.forEach(['User', 'Session', 'Search', 'Study'], function(model) {
+    restify.serve(
+      router,
+      mongoose.model(model),
+      _.merge({}, defaults, require('./' + model.toLowerCase() + '.config')(app, config, clients), customizer));    
+  });
   
   router.use(function(req, res, next) {
     next(createError(404));

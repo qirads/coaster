@@ -19,5 +19,6 @@ module.exports = {
   jwts: {
     secretKey: fs.readFileSync('config/jwts/jwtSecretKey.txt'),
     secondsToExpiration: 300  
-  }
+  },
+  resultLimit: 100
 };

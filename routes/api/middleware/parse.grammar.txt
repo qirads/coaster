@@ -1,0 +1,24 @@
+Criteria
+  = DemographicsCriterion / InstitutionCriterion
+  
+DemographicsCriterion
+  = "demographics:" _ demographics:("verified" / "unverified") _ {
+    return {
+      verified: demographics === 'verified'
+    }
+  }
+
+InstitutionCriterion
+  = "institution:" _ institution:(.*) _ {
+    return {
+      institution: {
+        $eq: institution
+      } 
+    }
+  }
+
+Digit
+  = [0-9] { return parseInt(text(), 10); }
+
+_ "whitespace"
+  = [ \t\n\r]*

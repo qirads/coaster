@@ -34,7 +34,7 @@ module.exports = function(schema) {
       }
     } else {
       var errors = [(_.isArray(field) ? 'received' : 'expected') + ' array of values instead of simple value'];
-      addToDetails(field, fieldSchema, details, prefix, errors);
+      addToDetails(fieldSchema.name, field, fieldSchema, details, prefix, errors);
     }
   }
 
@@ -46,10 +46,10 @@ module.exports = function(schema) {
             field, fieldSchema.schema, details,
             prefix + fieldSchema.name + (index === undefined ? '.' : '[' + index + '].'));          
         } else {
-          addToDetails(field, fieldSchema, details, prefix, ['expected object instead of simple value'], index);          
+          addToDetails(fieldSchema.name, field, fieldSchema, details, prefix, ['expected object instead of simple value'], index);          
         }
       } else if (fieldSchema.required) {
-        addToDetails(field, fieldSchema, details, prefix, ['missing required field'], index);
+        addToDetails(fieldSchema.name, field, fieldSchema, details, prefix, ['missing required field'], index);
       }
     } else {
       validateField(field, fieldSchema, details, prefix, index);
@@ -60,7 +60,7 @@ module.exports = function(schema) {
     var allowedFields = _.map(schema, function(fieldSchema) { return fieldSchema.name; });
     var extraneousFields = _.omit(body, allowedFields);
     _.forEach(extraneousFields, function(value, key) {
-      addToDetails(field, {}, details, prefix, 'unrecognized field', index);
+      addToDetails(key, value, {}, details, prefix, 'unrecognized field');
     });
   }
   
@@ -76,13 +76,13 @@ module.exports = function(schema) {
       errors.push('value not allowed');
     }
     if (_.size(errors)) {
-      addToDetails(field, fieldSchema, details, prefix, errors, index);
+      addToDetails(fieldSchema.name, field, fieldSchema, details, prefix, errors, index);
     }
   }
   
-  function addToDetails(field, fieldSchema, details, prefix, errors, index) {
+  function addToDetails(fieldName, field, fieldSchema, details, prefix, errors, index) {
     var detail = {
-      fieldName: prefix + fieldSchema.name + (index === undefined ? '' : '[' + index + ']'),
+      fieldName: prefix + fieldName + (index === undefined ? '' : '[' + index + ']'),
       fieldValue: field,
       fieldType: typeof field,
       expectedFieldType: fieldSchema.type,

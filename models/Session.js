@@ -6,7 +6,7 @@ module.exports = function(config, clients) {
   var jwt = require('jsonwebtoken');
   var blacklist = require('../lib/blacklist.wrapper')(clients.redis);
     
-  var SessionSchema = new mongoose.Schema( {
+  var SessionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     hasAdminPrivileges: { type: Boolean, default: false },
     state: {
@@ -19,7 +19,10 @@ module.exports = function(config, clients) {
     endedAt: { type: Date },    
   });
 
-  SessionSchema.methods.generateJWT = function() {
+  SessionSchema.methods.generateJWT = generateJWT;
+  SessionSchema.methods.revoke = revoke;
+
+  function generateJWT() {
     this.set('token', jwt.sign({
       hasAdminPrivileges : this.hasAdminPrivileges
     }, config.jwts.secretKey, {
@@ -28,8 +31,8 @@ module.exports = function(config, clients) {
       expiresIn: config.jwts.secondsToExpiration * 1000
     }), String, { strict: false });
   }
-  
-  SessionSchema.methods.revoke = function() {
+    
+  function revoke() {
     blacklist.revoke({ jti: this._id, sub: this.userId }, config.jwts.secondsToExpiration);
   }
   
