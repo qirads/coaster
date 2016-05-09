@@ -35,7 +35,8 @@ module.exports = function(app, config, clients) {
       if (err) { return next(err); }
       req.erm.result.set('count', count, { strict: false });
       Study.find(req.conditions, null, {
-        limit: Math.min(config.resultLimit, req.body.pageSize)
+        limit: Math.min(config.resultLimit, req.body.pageSize),
+        sort: '-timestamp'
       }, function(err, results) {
         if (err) { return next(err); }
         req.erm.result.set('results', results, { strict: false });
@@ -50,8 +51,12 @@ module.exports = function(app, config, clients) {
       var pageSize = req.query.pageSize ? Math.min(config.resultLimit, req.query.pageSize) : config.resultLimit;
       Study.find(req.conditions, null, {
         skip: pageSize * pageNumber,
-        limit: pageSize
+        limit: pageSize,
+        sort: '-timestamp'
       }, function(err, results) {
+        _.forEach(results, function(result) {
+          console.log(result.timestamp);
+        });
         if (err) { return next(err); }
         req.erm.result.results = results;
         next();
