@@ -31,10 +31,10 @@ module.exports = function(app, config, clients) {
   }
   
   function performInitialSearch(req, res, next) {
-    Study.count(req.parsedCriteria, function(err, count) {
+    Study.count(req.conditions, function(err, count) {
       if (err) { return next(err); }
       req.erm.result.set('count', count, { strict: false });
-      Study.find(req.parsedCriteria, null, {
+      Study.find(req.conditions, null, {
         limit: Math.min(config.resultLimit, req.body.pageSize)
       }, function(err, results) {
         if (err) { return next(err); }
@@ -48,7 +48,7 @@ module.exports = function(app, config, clients) {
     if (req.params.id) {
       var pageNumber = req.query.pageNumber ? req.query.pageNumber : 0;
       var pageSize = req.query.pageSize ? Math.min(config.resultLimit, req.query.pageSize) : config.resultLimit;
-      Study.find(req.parsedCriteria, null, {
+      Study.find(req.conditions, null, {
         skip: pageSize * pageNumber,
         limit: pageSize
       }, function(err, results) {

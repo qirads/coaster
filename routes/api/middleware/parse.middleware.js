@@ -30,7 +30,7 @@ function parse(req, res, next) {
     return next(createError(400, 'Invalid search criteria.', { details: details }));
   }
   
-  req.parsedCriteria = parsedCriteria;
+  req.conditions = parsedCriteria.length < 2 ? parsedCriteria : { $and: parsedCriteria } ;
   next();
 }
 
