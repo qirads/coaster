@@ -2,6 +2,7 @@
 
 'use strict';
 
+var moment = require ('moment');
 var parse = require ('./parse.middleware');
 
 describe('parse', function() {
@@ -16,18 +17,92 @@ describe('parse', function() {
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('calls its third argument with no error if parses', function() {
+  it('parses demographics:verified', function() {
     var next = jasmine.createSpy('next');
-    parse({ body: { criteria: [ 'demographics: verified'] } }, null, next);
+    var req = { body: { criteria: ['demographics: verified'] } };
+    parse(req, null, next);
+    expect(req.conditions).toEqual({ verified: true });
     expect(next).toHaveBeenCalledWith();
   });
 
-  it('calls its third argument with an error if does not parse', function() {
+  it('parses demographics:unverified', function() {
     var next = jasmine.createSpy('next');
-    parse({ body: { criteria: [ 'demoraphics: verified'] } }, null, next);
-    expect(next).toHaveBeenCalled();
-    expect(next.calls.length).toEqual(1);
-    expect(next).not.toHaveBeenCalledWith();
+    var req = { body: { criteria: ['demographics: unverified'] } };
+    parse(req, null, next);
+    expect(req.conditions).toEqual({ verified: false });
+    expect(next).toHaveBeenCalledWith();
+  });
+  
+  it('can handle text queries', function() {
+    var next = jasmine.createSpy('next');
+    var req = { body: { criteria: ['TESTQUERY'] } };
+    parse(req, null, next);
+    expect(req.conditions).toEqual({ $text: { $search: 'TESTQUERY' } });
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('can handle multiple criteria (without regards to whether they are mutually exclusive!)', function() {
+    var next = jasmine.createSpy('next');
+    var req = { body: { criteria: ['demographics:verified', 'TEST', 'demographics:unverified', 'QUERY'] } };
+    parse(req, null, next);
+    expect(req.conditions).toEqual({
+      $and: [
+        { verified: true },
+        { verified: false },
+        { $text: { $search: 'TEST QUERY' } }        
+      ]
+    });
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('parses on:today', function() {
+    var next = jasmine.createSpy('next');
+    var req = { body: { criteria: ['on:today'] } };
+    parse(req, null, next);
+    var date = moment().format('YYYYMMDD');
+    expect(req.conditions).toEqual({
+      timestamp: {
+        $gte: moment(date, 'YYYYMMDD', true).toDate(),
+        $lt: moment(date, 'YYYYMMDD', true).add(1, 'days').toDate()        
+      }
+    });
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('parses on:today', function() {
+    var next = jasmine.createSpy('next');
+    var req = { body: { criteria: ['on:yesterday'] } };
+    parse(req, null, next);
+    var date = moment().subtract(1, 'days').format('YYYYMMDD');
+    expect(req.conditions).toEqual({
+      timestamp: {
+        $gte: moment(date, 'YYYYMMDD', true).toDate(),
+        $lt: moment(date, 'YYYYMMDD', true).add(1, 'days').toDate()        
+      }
+    });
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('parses on:20160506', function() {
+    var next = jasmine.createSpy('next');
+    var req = { body: { criteria: ['on:20160506'] } };
+    parse(req, null, next);
+    var date = '20160506';
+    expect(req.conditions).toEqual({
+      timestamp: {
+        $gte: moment(date, 'YYYYMMDD', true).toDate(),
+        $lt: moment(date, 'YYYYMMDD', true).add(1, 'days').toDate()        
+      }
+    });
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('parses on:20160506 as text because it is invalid date', function() {
+    var next = jasmine.createSpy('next');
+    var req = { body: { criteria: ['on:20161306'] } };
+    parse(req, null, next);
+    expect(req.conditions).toEqual({ $text: { $search: 'on:20161306' } });
+    expect(next).toHaveBeenCalledWith();
   });
 
 });

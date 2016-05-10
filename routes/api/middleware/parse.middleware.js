@@ -9,28 +9,47 @@ var parser = PEG.buildParser(grammar);
 
 function parse(req, res, next) {
   var parsedCriteria = [];
-  var details = [];
+  var textCriteria = [];
+  var warnings = [];
+
   _.forEach(req.body.criteria, function(criterion, index) {
     var parsedCriterion;
     try {
-      parsedCriterion = parser.parse(criterion);
+      parsedCriteria.push(parser.parse(criterion.toLowerCase()));
     } catch (e) {
+
       if (e.name === 'SyntaxError') {
-        details.push({
-          criterion: criterion,
-          indexWithinProvidedCriteria: index,
-          errors: e
-        });
+
+        textCriteria.push(criterion);
+
+        if (criterion.indexOf(':') > -1) {
+          warnings.push({
+            criterion: criterion,
+            index: index,
+            interpretedAs: 'text',
+            errors: e
+          });          
+        }
+
       } 
-    } 
-    parsedCriteria.push(parsedCriterion);
+
+    }
   });
-  
-  if (_.size(details)) {
-    return next(createError(400, 'Invalid search criteria.', { details: details }));
+    
+  if (textCriteria.length) {
+    parsedCriteria.push({
+      $text: {
+        $search: textCriteria.join(' ')
+      }
+    })
   }
   
-  req.conditions = parsedCriteria.length < 2 ? parsedCriteria : { $and: parsedCriteria } ;
+  req.conditions = parsedCriteria.length < 2 ? parsedCriteria[0] : { $and: parsedCriteria };
+  
+  if (warnings.length) {
+    req.warnings = warnings;
+  }
+    
   next();
 }
 

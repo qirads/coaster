@@ -10,14 +10,15 @@ module.exports = function(config, clients) {
     location: String,
     modality: String,
     description: String,
+    history: { type: String, text:true },
     bodyPart: String,
     specialty: String,
     reports: [{
       timestamp: Date,
-      text: String
+      text: { type: String, text:true }
     }]
   });
-
+  
   mongoose.model('Study', StudySchema);
   
 }

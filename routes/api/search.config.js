@@ -29,7 +29,7 @@ module.exports = function(app, config, clients) {
     req.body.createdAt = Date.now();    
     next();
   }
-  
+  var moment = require('moment');
   function performInitialSearch(req, res, next) {
     Study.count(req.conditions, function(err, count) {
       if (err) { return next(err); }
@@ -40,6 +40,9 @@ module.exports = function(app, config, clients) {
       }, function(err, results) {
         if (err) { return next(err); }
         req.erm.result.set('results', results, { strict: false });
+        if (req.warnings) {
+          req.erm.result.set('warnings', req.warnings, { strict: false });        
+        }
         next();
       });      
     });
@@ -54,9 +57,6 @@ module.exports = function(app, config, clients) {
         limit: pageSize,
         sort: '-timestamp'
       }, function(err, results) {
-        _.forEach(results, function(result) {
-          console.log(result.timestamp);
-        });
         if (err) { return next(err); }
         req.erm.result.results = results;
         next();

@@ -1,24 +1,73 @@
-Criteria
-  = DemographicsCriterion / InstitutionCriterion
-  
+{
+  var moment = require('moment');
+}
+
+Criterion
+  = DemographicsCriterion / OnCriterion / StringCriterion
+
 DemographicsCriterion
-  = "demographics:" _ demographics:("verified" / "unverified") _ {
+  = _ "demographics:" _ demographics:("verified" / "unverified") _ {
     return {
       verified: demographics === 'verified'
-    }
+    };
   }
 
-InstitutionCriterion
-  = "institution:" _ institution:(.*) _ {
-    return {
-      institution: {
-        $eq: institution
-      } 
+OnCriterion
+  = _ "on:" _ date:Date _ {
+    if (moment(date, 'YYYY-MM-DD', true).isValid()) {
+      return {
+        timestamp: {
+          $gte: moment(date, 'YYYY-MM-DD', true).toDate(),
+          $lt: moment(date, 'YYYY-MM-DD', true).add(1, 'days').toDate()
+        }
+      };
+    } else {
+      expected('valid date');
     }
   }
+  
+Date
+  = Today / Yesterday / DateWithYearLast / DateWithYearFirst / DateWithOutSeparators
+
+Today
+  = "today" {
+    return moment().format('YYYY-MM-DD');
+  }
+
+Yesterday
+  = "yesterday" {
+    return moment().subtract(1, 'days').format('YYYY-MM-DD');
+  }
+
+DateWithYearLast
+  = month:(Digit Digit) DateSeparator day:(Digit Digit) DateSeparator year:(Digit Digit Digit Digit) {
+    return year.join('') + '-' + month.join('') + '-' + day.join('');  
+  }
+
+DateWithYearFirst
+  = year:(Digit Digit Digit Digit) DateSeparator month:(Digit Digit) DateSeparator day:(Digit Digit) {
+    return year.join('') + '-' + month.join('') + '-' + day.join('');  
+  }
+
+DateWithOutSeparators
+  = date:(Digit Digit Digit Digit Digit Digit Digit Digit) {
+    return date[0] + date[1] + date[2] + date[3] + '-' + date[4] + date[5] + '-' + date[6] + date[7];
+  }
+
+DateSeparator
+  = [-/:]
 
 Digit
-  = [0-9] { return parseInt(text(), 10); }
+  = [0-9]
 
+StringCriterion
+  = _ criterion:("institution" / "location" / "modality" / "description" / "bodyPart" / "specialty") ":" _ value:(.*) _ {
+    var result = {};
+    result[criterion] = {
+      $eq: value.join('')
+    };
+    return result;
+  }
+  
 _ "whitespace"
   = [ \t\n\r]*
