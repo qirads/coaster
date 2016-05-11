@@ -1,9 +1,85 @@
 {
   var moment = require('moment');
+  
+  function onCriterion(field, date) {
+    date = moment(date, 'YYYY-MM-DD', true);
+    if (date.isValid()) {
+      var criterion = {};
+      criterion[field] = {
+        $gte: date.toDate(),
+        $lt: moment(date).add(1, 'days').toDate()
+      };
+      return criterion;
+    } else {
+      expected('valid date');
+    }
+  }
+
+  function withinLastNCriterion(field, n, unit) {
+    var criterion = {};
+    criterion[field] = {
+      $gte: moment().subtract(n, unit).toDate()
+    };
+    return criterion;
+  }
+
+  function withinNofTimestampCriterion(field, n, unit, timestamp) {
+    timestamp = moment(timestamp, 'YYYY-MM-DD-HH-mm', true);
+    if (timestamp.isValid()) {
+      var criterion = {};
+      criterion[field] = {
+        $gte: moment(timestamp).subtract(n, unit).toDate(),
+        $lt: moment(moment(timestamp).add(1, 'minutes')).add(n, unit).toDate()
+      };
+      return criterion;
+    } else {
+      expected('valid timestamp');
+    }
+  }
+
+  function withinNofDateCriterion(field, n, unit, date) {
+    date = moment(date, 'YYYY-MM-DD', true);
+    if (date.isValid()) {
+      var criterion = {};
+      criterion[field] = {
+        $gte: moment(date).subtract(n, unit).toDate(),
+        $lt: moment(moment(date).add(1, 'days')).add(n, unit).toDate()
+      };
+      return criterion;
+    } else {
+      expected('valid date');
+    }
+  }
+
+  function beforeCriterion(field, thisUnitTime) {
+    var criterion = {};
+    criterion[field] = {
+      $lt: thisUnitTime
+    };
+    return criterion;
+  }
+
+  function afterCriterion(field, nextUnitTime) {
+    var criterion = {};
+    criterion[field] = {
+      $gte: nextUnitTime
+    };
+    return criterion;
+  }
+
+  function betweenCriterion(field, thisUnitTime, nextUnitTime) {
+    var criterion = {};
+    criterion[field] = {
+      $gte: thisUnitTime,
+      $lt: nextUnitTime
+    };
+    return criterion;
+  }
+
 }
 
 Criterion
-  = DemographicsCriterion / OnCriterion / StringCriterion
+  = DemographicsCriterion / StringCriterion / OnCriterion / WithinLastCriterion / WithinCriterion / BeforeCriterion / AfterCriterion / BetweenCriterion / ReportedOnCriterion / ReportedWithinLastCriterion / ReportedWithinCriterion / ReportedBeforeCriterion / ReportedAfterCriterion / ReportedBetweenCriterion
 
 DemographicsCriterion
   = _ "demographics:" _ demographics:("verified" / "unverified") _ {
@@ -14,20 +90,109 @@ DemographicsCriterion
 
 OnCriterion
   = _ "on:" _ date:Date _ {
-    if (moment(date, 'YYYY-MM-DD', true).isValid()) {
-      return {
-        timestamp: {
-          $gte: moment(date, 'YYYY-MM-DD', true).toDate(),
-          $lt: moment(date, 'YYYY-MM-DD', true).add(1, 'days').toDate()
-        }
-      };
-    } else {
-      expected('valid date');
-    }
+    return onCriterion('timestamp', date);
+  }
+
+ReportedOnCriterion
+  = _ "reported" _ "-"? _ "on:" _ date:Date _ {
+    return onCriterion('reports.timestamp', date);
+  }
+
+WithinLastCriterion
+  = _ "within:last:" _ n:Integer _ unit:TimeUnit _ {
+    return withinLastNCriterion('timestamp', n, unit);
+  } 
+
+ReportedWithinLastCriterion
+  = _ "reported" _ "-"? _ "within:last:" _ n:Integer _ unit:TimeUnit _ {
+    return withinLastNCriterion('reports.timestamp', n, unit);
+  } 
+
+WithinCriterion
+  = _ "within:" _ n:Integer _ unit:TimeUnit _ ":of:" _ timestamp:Timestamp _ {
+    return withinNofTimestampCriterion('timestamp', n, unit, timestamp);
+  } / _ "within:" _ n:Integer _ unit:TimeUnit _ ":of:" _ date:Date _ {
+    return withinNofDateCriterion('timestamp', n, unit, date);
+  } 
+
+ReportedWithinCriterion
+  = _ "reported" _ "-"? _ "within:" _ n:Integer _ unit:TimeUnit _ ":of:" _ timestamp:Timestamp _ {
+    return withinNofTimestampCriterion('reports.timestamp', n, unit, timestamp);
+  } / _ "within:" _ n:Integer _ unit:TimeUnit _ ":of:" _ date:Date _ {
+    return withinNofDateCriterion('reports.timestamp', n, unit, date);
+  } 
+
+BeforeCriterion
+  = _ "before:" _ thisUnitTime:ThisUnitTime _ {
+    return beforeCriterion('timestamp', thisUnitTime);
+  }
+
+ReportedBeforeCriterion
+  = _ "reported" _ "-"? _ "before:" _ thisUnitTime:ThisUnitTime _ {
+    return beforeCriterion('reports.timestamp', thisUnitTime);
+  }
+  
+AfterCriterion
+  = _ "after:" _ nextUnitTime:NextUnitTime _ {
+    return afterCriterion('timestamp', nextUnitTime);
+  }
+
+ReportedAfterCriterion
+  = _ "reported" _ "-"? _ "after:" _ nextUnitTime:NextUnitTime _ {
+    return afterCriterion('reports.timestamp', nextUnitTime);
+  }
+
+BetweenCriterion
+  = _ "between:" _ thisUnitTime:ThisUnitTime _ ":and:" _ nextUnitTime:NextUnitTime _ {
+    return betweenCriterion('timestamp', thisUnitTime, nextUnitTime);
+  }
+
+ReportedBetweenCriterion
+  = _ "reported" _ "-"? _ "between:" _ thisUnitTime:ThisUnitTime _ ":and:" _ nextUnitTime:NextUnitTime _ {
+    return betweenCriterion('reports.timestamp', thisUnitTime, nextUnitTime);
+  }
+
+NextUnitTime
+ = timestamp:Timestamp {
+   timestamp = moment(timestamp, 'YYYY-MM-DD-HH-mm', true);
+   if (timestamp.isValid()) {
+     return timestamp.add(1, 'minutes').toDate();
+   } else {
+     expected('valid timestamp');
+   }
+ } / date:Date {
+   date = moment(date, 'YYYY-MM-DD', true);
+   if (date.isValid()) {
+     return date.add(1, 'days').toDate();
+   } else {
+     expected('valid date');
+   }
+ }
+  
+ThisUnitTime
+ = timestamp:Timestamp {
+   timestamp = moment(timestamp, 'YYYY-MM-DD-HH-mm', true);
+   if (timestamp.isValid()) {
+     return timestamp.toDate();
+   } else {
+     expected('valid timestamp');
+   }
+ } / date:Date {
+   date = moment(date, 'YYYY-MM-DD', true);
+   if (date.isValid()) {
+     return date.toDate();
+   } else {
+     expected('valid date');
+   }
+ }
+  
+Timestamp
+  = date:Date _ DateTimeSeparator? _ time:Time {
+    return date + '-' + time;
   }
   
 Date
-  = Today / Yesterday / DateWithYearLast / DateWithYearFirst / DateWithOutSeparators
+  = Today / Yesterday / DateWithYearLast / DateWithYearFirst
 
 Today
   = "today" {
@@ -40,22 +205,35 @@ Yesterday
   }
 
 DateWithYearLast
-  = month:(Digit Digit) DateSeparator day:(Digit Digit) DateSeparator year:(Digit Digit Digit Digit) {
+  = month:(Digit Digit) DateTimeSeparator day:(Digit Digit) DateTimeSeparator year:(Digit Digit Digit Digit) {
     return year.join('') + '-' + month.join('') + '-' + day.join('');  
   }
 
 DateWithYearFirst
-  = year:(Digit Digit Digit Digit) DateSeparator month:(Digit Digit) DateSeparator day:(Digit Digit) {
+  = year:(Digit Digit Digit Digit) DateTimeSeparator? month:(Digit Digit) DateTimeSeparator? day:(Digit Digit) {
     return year.join('') + '-' + month.join('') + '-' + day.join('');  
   }
-
-DateWithOutSeparators
-  = date:(Digit Digit Digit Digit Digit Digit Digit Digit) {
-    return date[0] + date[1] + date[2] + date[3] + '-' + date[4] + date[5] + '-' + date[6] + date[7];
+  
+Time
+  = hours:(Digit Digit) DateTimeSeparator? minutes:(Digit Digit) {
+    return hours.join('') + '-' + minutes.join('');
   }
 
-DateSeparator
-  = [-/:]
+DateTimeSeparator
+  = [ -/:]
+  
+TimeUnit
+  = unit:[a-z]+ {
+    var normalized = moment.normalizeUnits(unit.join(''));
+    if (normalized) {
+      return normalized;
+    } else {
+      expected('valid timespan units');
+    }
+  } 
+
+Integer
+  = [0-9]+ { return parseInt(text(), 10); }
 
 Digit
   = [0-9]
@@ -69,5 +247,5 @@ StringCriterion
     return result;
   }
   
-_ "whitespace"
+_ "optionalWhitespace"
   = [ \t\n\r]*

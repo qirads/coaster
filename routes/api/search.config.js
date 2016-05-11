@@ -18,8 +18,7 @@ module.exports = function(app, config, clients) {
     name: 'criteria',
     type: ['string'],
     required: true
-  },
-  {
+  }, {
     name: 'pageSize',
     type: 'number'
   }]);
@@ -29,7 +28,7 @@ module.exports = function(app, config, clients) {
     req.body.createdAt = Date.now();    
     next();
   }
-  var moment = require('moment');
+
   function performInitialSearch(req, res, next) {
     Study.count(req.conditions, function(err, count) {
       if (err) { return next(err); }
@@ -46,6 +45,11 @@ module.exports = function(app, config, clients) {
         next();
       });      
     });
+  }
+  
+  function getCriteria(req, res, next) {
+    req.body.criteria = req.erm.result.criteria;
+    next();
   }
 
   function addResults(req, res, next) {
@@ -68,11 +72,11 @@ module.exports = function(app, config, clients) {
   
   var options = {
     name: 'searches',
-    preCreate: [ authenticate, validateCreate, addUserId, parse ],
-    postCreate: [ performInitialSearch ],
+    preCreate: [ authenticate, validateCreate, addUserId ],
+    postCreate: [ parse, performInitialSearch ],
     contextFilter: contextFilter,
     preRead: [ authenticate ],
-    postRead: [ addResults ],
+    postRead: [ getCriteria, parse, addResults ],
     preUpdate: [ disallow ],
     preRemove: [ disallow ],
   };  

@@ -11,9 +11,8 @@ function parse(req, res, next) {
   var parsedCriteria = [];
   var textCriteria = [];
   var warnings = [];
-
+  
   _.forEach(req.body.criteria, function(criterion, index) {
-    var parsedCriterion;
     try {
       parsedCriteria.push(parser.parse(criterion.toLowerCase()));
     } catch (e) {
@@ -49,7 +48,7 @@ function parse(req, res, next) {
   if (warnings.length) {
     req.warnings = warnings;
   }
-    
+
   next();
 }
 
