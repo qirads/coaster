@@ -85,7 +85,7 @@ DemographicsCriterion
   = _ "demographics:" _ demographics:("verified" / "unverified") _ {
     return {
       term: {
-        "demographics": demographics
+        verified: demographics === 'verified'
       }
     };
   }
