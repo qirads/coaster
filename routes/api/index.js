@@ -15,10 +15,8 @@ module.exports = function(app, config, clients) {
     private: ['__v']    
   };
   
-  if (app.get('env') !== 'development') {
-    defaults.onError = function (err, req, res, next) {
-      next(createError(err.statusCode));
-    }
+  defaults.onError = function (err, req, res, next) {
+    next(createError(err.statusCode));
   }
   
   _.forEach(['User', 'Session', 'Search', 'Study'], function(model) {

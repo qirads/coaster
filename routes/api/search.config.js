@@ -25,25 +25,26 @@ module.exports = function(app, config, clients) {
   
   function addUserId(req, res, next) {
     req.body.userId = req.auth.sub;
-    req.body.createdAt = Date.now();    
+    req.body.createdAt = Date.now();
     next();
   }
 
   function performInitialSearch(req, res, next) {
-    Study.count(req.conditions, function(err, count) {
+    Study.search({
+      bool: { must: req.conditions }
+    }, {
+      size: Math.min(config.resultLimit, req.body.pageSize),
+      from: 0
+    }, function(err, results) {
       if (err) { return next(err); }
-      req.erm.result.set('count', count, { strict: false });
-      Study.find(req.conditions, null, {
-        limit: Math.min(config.resultLimit, req.body.pageSize),
-        sort: '-timestamp'
-      }, function(err, results) {
-        if (err) { return next(err); }
-        req.erm.result.set('results', results, { strict: false });
-        if (req.warnings) {
-          req.erm.result.set('warnings', req.warnings, { strict: false });        
-        }
-        next();
-      });      
+      req.erm.result.set('count', results.hits.total, { strict: false });
+      req.erm.result.set('results', _.map(results.hits.hits, function(hit) {
+        return _.assign(hit._source, hit._id);
+      }), { strict: false });
+      if (req.warnings) {
+        req.erm.result.set('warnings', req.warnings, { strict: false });
+      }
+      next();
     });
   }
   
@@ -56,13 +57,16 @@ module.exports = function(app, config, clients) {
     if (req.params.id) {
       var pageNumber = req.query.pageNumber ? req.query.pageNumber : 0;
       var pageSize = req.query.pageSize ? Math.min(config.resultLimit, req.query.pageSize) : config.resultLimit;
-      Study.find(req.conditions, null, {
-        skip: pageSize * pageNumber,
-        limit: pageSize,
-        sort: '-timestamp'
+      Study.search(req.conditions, null, {
+        bool: { must: req.conditions }
+      }, {
+        size: pageSize,
+        from: pageSize * pageNumber + 1,
       }, function(err, results) {
         if (err) { return next(err); }
-        req.erm.result.results = results;
+        req.erm.result.results = _.map(results.hits.hits, function(hit) {
+          return _.assign(hit._source, hit._id);
+        });
         next();
       });      
     } else {

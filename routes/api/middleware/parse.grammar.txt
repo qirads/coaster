@@ -4,10 +4,10 @@
   function onCriterion(field, date) {
     date = moment(date, 'YYYY-MM-DD', true);
     if (date.isValid()) {
-      var criterion = {};
-      criterion[field] = {
-        $gte: date.toDate(),
-        $lt: moment(date).add(1, 'days').toDate()
+      var criterion = { range: {} };
+      criterion.range[field] = {
+        gte: date.toDate(),
+        lt: moment(date).add(1, 'days').toDate()
       };
       return criterion;
     } else {
@@ -16,9 +16,9 @@
   }
 
   function withinLastNCriterion(field, n, unit) {
-    var criterion = {};
-    criterion[field] = {
-      $gte: moment().subtract(n, unit).toDate()
+    var criterion = { range: {} };
+    criterion.range[field] = {
+      gte: moment().subtract(n, unit).toDate()
     };
     return criterion;
   }
@@ -26,10 +26,10 @@
   function withinNofTimestampCriterion(field, n, unit, timestamp) {
     timestamp = moment(timestamp, 'YYYY-MM-DD-HH-mm', true);
     if (timestamp.isValid()) {
-      var criterion = {};
-      criterion[field] = {
-        $gte: moment(timestamp).subtract(n, unit).toDate(),
-        $lt: moment(moment(timestamp).add(1, 'minutes')).add(n, unit).toDate()
+      var criterion = { range: {} };
+      criterion.range[field] = {
+        gte: moment(timestamp).subtract(n, unit).toDate(),
+        lt: moment(moment(timestamp).add(1, 'minutes')).add(n, unit).toDate()
       };
       return criterion;
     } else {
@@ -40,10 +40,10 @@
   function withinNofDateCriterion(field, n, unit, date) {
     date = moment(date, 'YYYY-MM-DD', true);
     if (date.isValid()) {
-      var criterion = {};
-      criterion[field] = {
-        $gte: moment(date).subtract(n, unit).toDate(),
-        $lt: moment(moment(date).add(1, 'days')).add(n, unit).toDate()
+      var criterion = { range: {} };
+      criterion.range[field] = {
+        gte: moment(date).subtract(n, unit).toDate(),
+        lt: moment(moment(date).add(1, 'days')).add(n, unit).toDate()
       };
       return criterion;
     } else {
@@ -52,26 +52,26 @@
   }
 
   function beforeCriterion(field, thisUnitTime) {
-    var criterion = {};
-    criterion[field] = {
-      $lt: thisUnitTime
+    var criterion = { range: {} };
+    criterion.range[field] = {
+      lt: thisUnitTime
     };
     return criterion;
   }
 
   function afterCriterion(field, nextUnitTime) {
-    var criterion = {};
-    criterion[field] = {
-      $gte: nextUnitTime
+    var criterion = { range: {} };
+    criterion.range[field] = {
+      gte: nextUnitTime
     };
     return criterion;
   }
 
   function betweenCriterion(field, thisUnitTime, nextUnitTime) {
-    var criterion = {};
-    criterion[field] = {
-      $gte: thisUnitTime,
-      $lt: nextUnitTime
+    var criterion = { range: {} };
+    criterion.range[field] = {
+      gte: thisUnitTime,
+      lt: nextUnitTime
     };
     return criterion;
   }
@@ -84,7 +84,9 @@ Criterion
 DemographicsCriterion
   = _ "demographics:" _ demographics:("verified" / "unverified") _ {
     return {
-      verified: demographics === 'verified'
+      term: {
+        "demographics": demographics
+      }
     };
   }
 
@@ -239,12 +241,10 @@ Digit
   = [0-9]
 
 StringCriterion
-  = _ criterion:("institution" / "location" / "modality" / "description" / "bodyPart" / "specialty") ":" _ value:(.*) _ {
-    var result = {};
-    result[criterion] = {
-      $eq: value.join('')
-    };
-    return result;
+  = _ field:("institution" / "unit" / "modality" / "description" / "bodyPart" / "specialty") ":" _ value:(.*) _ {
+    var criterion = { match: {} };
+    criterion.match[field] =  value.join('');
+    return criterion;
   }
   
 _ "optionalWhitespace"

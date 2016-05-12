@@ -14,7 +14,7 @@ function parse(req, res, next) {
   
   _.forEach(req.body.criteria, function(criterion, index) {
     try {
-      parsedCriteria.push(parser.parse(criterion.toLowerCase()));
+      parsedCriteria.push(parser.parse(criterion));
     } catch (e) {
 
       if (e.name === 'SyntaxError') {
@@ -34,17 +34,21 @@ function parse(req, res, next) {
 
     }
   });
-    
+
   if (textCriteria.length) {
     parsedCriteria.push({
-      $text: {
-        $search: textCriteria.join(' ')
+      multi_match :
+      {
+          query: textCriteria.join(' '),
+          type: 'cross_fields',
+          operator: 'and',
+          fields: ['description', 'history', 'reports.text']
       }
-    })
+    });
   }
   
-  req.conditions = parsedCriteria.length < 2 ? parsedCriteria[0] : { $and: parsedCriteria };
-  
+  req.conditions = parsedCriteria;
+
   if (warnings.length) {
     req.warnings = warnings;
   }
