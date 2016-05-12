@@ -34,7 +34,8 @@ module.exports = function(app, config, clients) {
       bool: { must: req.conditions }
     }, {
       size: Math.min(config.resultLimit, req.body.pageSize),
-      from: 0
+      from: 0,
+      sort: [{ timestamp: 'desc' }]
     }, function(err, results) {
       if (err) { return next(err); }
       req.erm.result.set('count', results.hits.total, { strict: false });
@@ -62,6 +63,7 @@ module.exports = function(app, config, clients) {
       }, {
         size: pageSize,
         from: pageSize * pageNumber + 1,
+        sort: [{ timestamp: 'desc' }]
       }, function(err, results) {
         if (err) { return next(err); }
         req.erm.result.results = _.map(results.hits.hits, function(hit) {
