@@ -48,7 +48,7 @@ module.exports = function(config, clients) {
     }, config.jwts.secretKey, {
       subject : this._id,
       jwtid: sessionId,
-      expiresIn: config.jwts.secondsToExpiration * 1000
+      expiresIn: config.jwts.secondsToExpiration
     }), String, { strict: false });
   }
   

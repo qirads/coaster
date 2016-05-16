@@ -58,7 +58,7 @@ module.exports = function(app, config, clients) {
     if (req.params.id) {
       var pageNumber = req.query.pageNumber ? req.query.pageNumber : 0;
       var pageSize = req.query.pageSize ? Math.min(config.resultLimit, req.query.pageSize) : config.resultLimit;
-      Study.search(req.conditions, null, {
+      Study.search({
         bool: { must: req.conditions }
       }, {
         size: pageSize,
