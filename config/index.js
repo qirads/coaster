@@ -10,7 +10,19 @@ module.exports = {
   filePaths: {
     rootCertificate: 'config/certs/dev-root-cert.pem'
   },
-  credentials: credentials,
+  credentials: {
+    admin: {
+      userName: credentials.admin.userName,
+      password: credentials.admin.password
+    },
+    mongoDB: {
+      userName: credentials.mongoDB.userName,
+      password: credentials.mongoDB.password
+    },
+    redis: {
+      password: credentials.redis.password
+    }
+  },
   certs: {
     privateKey: fs.readFileSync('config/certs/dev-key.pem'),
     certificate: fs.readFileSync('config/certs/dev-cert.pem'),
