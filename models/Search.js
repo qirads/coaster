@@ -6,7 +6,8 @@ module.exports = function(config, clients) {
   var SearchSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, required: true },
-    criteria: { type: [String] }
+    criteria: { type: [String] },
+    count: Number
   });
   
   mongoose.model('Search', SearchSchema);

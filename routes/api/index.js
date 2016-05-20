@@ -23,7 +23,7 @@ module.exports = function(app, config, clients) {
     restify.serve(
       router,
       mongoose.model(model),
-      _.merge({}, defaults, require('./' + model.toLowerCase() + '.config')(app, config, clients), customizer));    
+      _.merge({}, defaults, require('./' + model.toLowerCase() + '.config')(app, config, clients), customizer));
   });
   
   router.use(function(req, res, next) {

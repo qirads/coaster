@@ -5,7 +5,6 @@ module.exports = function(app, config, clients) {
   var mongoose = require('mongoose');
   var Session = mongoose.model('Session');
   var limiter = require('express-limiter')(null, clients.redis);
-  var createError = require('http-errors');
   var passportWrapper = require('./middleware/passport.wrapper')(config);
   var allowPatchOnly = require('./middleware/allowMethods.middleware')('PATCH');
   var validate = require('./middleware/validate.middleware');

@@ -38,15 +38,20 @@ module.exports = function(app, config, clients) {
       sort: [{ timestamp: 'desc' }]
     }, function(err, results) {
       if (err) { return next(err); }
-      req.erm.result.set('count', results.hits.total, { strict: false });
-      req.erm.result.set('results', _.map(results.hits.hits, function(hit) {
-        return _.assign(hit._source, hit._id);
-      }), { strict: false });
-      if (req.warnings) {
-        req.erm.result.set('warnings', req.warnings, { strict: false });
-      }
+      req.body.count = results.hits.total;
+      req.results = _.map(results.hits.hits, function(hit) {
+        return _.assign(hit._source, { _id: hit._id });
+      });
       next();
     });
+  }
+  
+  function addInitialResults(req, res, next) {
+    req.erm.result.set('results', req.results, { strict: false });
+    if (req.warnings) {
+      req.erm.result.set('warnings', req.warnings, { strict: false });
+    }
+    next();
   }
   
   function getCriteria(req, res, next) {
@@ -78,8 +83,8 @@ module.exports = function(app, config, clients) {
   
   var options = {
     name: 'searches',
-    preCreate: [ authenticate, validateCreate, addUserId ],
-    postCreate: [ parse, performInitialSearch ],
+    preCreate: [ authenticate, validateCreate, addUserId, parse, performInitialSearch ],
+    postCreate: [ addInitialResults ],
     contextFilter: contextFilter,
     preRead: [ authenticate ],
     postRead: [ getCriteria, parse, addResults ],
