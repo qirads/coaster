@@ -19,9 +19,7 @@ module.exports = function(app, config, clients) {
       if (err) { return next(err); }
       // Adapted from:
       // http://stackoverflow.com/questions/26221730/prefer-uppercase-unique-when-doing-case-insensitive-sort-removing-duplicates-ins
-      var values = _.map(results.aggregations.uniqueValues.buckets, function(bucket) {
-        return bucket.key;
-      });
+      var values = _.map(results.aggregations.uniqueValues.buckets, 'key');
       var sortedValues = values.sort(function(a, b) {
         return b.localeCompare(a, { sensitivity: 'base' });
       });

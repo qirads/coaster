@@ -57,7 +57,7 @@ module.exports = function(schema) {
   }
   
   function checkExtraneousFields(body, schema, details, prefix) {
-    var allowedFields = _.map(schema, function(fieldSchema) { return fieldSchema.name; });
+    var allowedFields = _.map(schema, 'name' );
     var extraneousFields = _.omit(body, allowedFields);
     _.forEach(extraneousFields, function(value, key) {
       addToDetails(key, value, {}, details, prefix, 'unrecognized field');
