@@ -7,13 +7,13 @@ module.exports = function(config, clients) {
   var StudySchema = new mongoose.Schema({
     timestamp: Date,
     verified: Boolean,
-    institution: { type: String, index: true },
-    unit: { type: String, index: true },
-    modality: { type: String, index: true },
-    description: { type: String, index: true },
+    institution: { type: String, es_index: 'not_analyzed' },
+    unit: { type: String, es_index: 'not_analyzed' },
+    modality: { type: String, es_index: 'not_analyzed' },
+    description: { type: String, es_index: 'not_analyzed' },
     history: String,
-    bodyPart: { type: String, index: true },
-    specialty: { type: String, index: true },
+    bodyPart: { type: String, es_index: 'not_analyzed' },
+    specialty: { type: String, es_index: 'not_analyzed' },
     reports: [{
       timestamp: Date,
       text: String
