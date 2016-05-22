@@ -4,7 +4,6 @@ module.exports = function(app, config, clients) {
 
   var utils = require('../utils');
   var path = require('path');
-  var createError = require('http-errors');
 
   // setup routes
   utils.forEachSubdir(__dirname, function(dir) {

@@ -4,7 +4,6 @@ module.exports = function(app, config, clients) {
 
   var mongoose = require('mongoose');
   var Study = mongoose.model('Study');
-  var createError = require('http-errors');
   var disallow = require('./middleware/allowMethods.middleware')();
   var validate = require('./middleware/validate.middleware');
   var contextFilter = require('./middleware/contextFilter.filter');

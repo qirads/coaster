@@ -12,6 +12,7 @@ module.exports = function(app, config, clients) {
   var authenticate = require('./middleware/jwt.wrapper')(config, clients.redis);
   var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
   var authorize = require('./middleware/authorize.middleware');
+  var createError = require('http-errors');
     
   var _ = require('lodash');
   

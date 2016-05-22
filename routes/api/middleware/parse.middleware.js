@@ -1,6 +1,5 @@
 'use strict';
 
-var createError = require('http-errors');
 var _ = require('lodash');
 var PEG = require('pegjs');
 var fs = require('fs');
