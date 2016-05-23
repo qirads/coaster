@@ -26,7 +26,9 @@ module.exports = function(app, config, clients) {
       var uniqueValues = _.sortedUniqBy(sortedValues, function(i) {
         return i.toLowerCase();
       });
-      res.json(uniqueValues);
+      res.json(uniqueValues.sort(function(a, b) {
+        return a.localeCompare(b, { sensitivity: 'base' });
+      }));
     });
   }
     
