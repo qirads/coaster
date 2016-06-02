@@ -36,12 +36,11 @@ function parse(req, res, next) {
 
   if (textCriteria.length) {
     parsedCriteria.push({
-      multi_match :
-      {
-          query: textCriteria.join(' '),
-          type: 'cross_fields',
-          operator: 'and',
-          fields: ['description', 'history', 'reports.text']
+      multi_match: {
+        query: textCriteria.join(' '),
+        type: 'cross_fields',
+        operator: 'and',
+        fields: ['description', 'history', 'reports.text']
       }
     });
   }

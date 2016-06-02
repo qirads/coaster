@@ -38,11 +38,11 @@ describe('parse', function() {
     var req = { body: { criteria: ['TESTQUERY'] } };
     parse(req, null, next);
     expect(req.conditions).toEqual([{
-      multi_match : {
-        query : 'TESTQUERY',
-        type : 'cross_fields',
-        operator : 'and',
-        fields : [ 'description', 'history', 'reports.text' ]
+      multi_match: {
+        query: 'TESTQUERY',
+        type: 'cross_fields',
+        operator: 'and',
+        fields: [ 'description', 'history', 'reports.text' ]
       }
     }]);
     expect(next).toHaveBeenCalledWith();
@@ -57,11 +57,11 @@ describe('parse', function() {
     }, {
       term: { verified: false }
     }, {
-      multi_match : {
-        query : 'TEST QUERY',
-        type : 'cross_fields',
-        operator : 'and',
-        fields : [ 'description', 'history', 'reports.text' ]
+      multi_match: {
+        query: 'TEST QUERY',
+        type: 'cross_fields',
+        operator: 'and',
+        fields: [ 'description', 'history', 'reports.text' ]
       }
     }]);
     expect(next).toHaveBeenCalledWith();
@@ -120,11 +120,11 @@ describe('parse', function() {
     var req = { body: { criteria: ['on:20161306'] } };
     parse(req, null, next);
     expect(req.conditions).toEqual([{
-      multi_match : {
-        query : 'on:20161306',
-        type : 'cross_fields',
-        operator : 'and',
-        fields : [ 'description', 'history', 'reports.text' ]
+      multi_match: {
+        query: 'on:20161306',
+        type: 'cross_fields',
+        operator: 'and',
+        fields: [ 'description', 'history', 'reports.text' ]
       }   
     }]);
     expect(next).toHaveBeenCalledWith();
