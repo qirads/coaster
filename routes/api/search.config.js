@@ -32,7 +32,7 @@ module.exports = function(app, config, clients) {
     Study.search({
       bool: { must: req.conditions }
     }, {
-      size: Math.min(config.resultLimit, req.body.pageSize),
+      size: req.body.pageSize ? Math.min(config.resultLimit, req.body.pageSize) : config.resultLimit,
       from: 0,
       sort: [{ timestamp: 'desc' }]
     }, function(err, results) {
