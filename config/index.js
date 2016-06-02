@@ -19,6 +19,10 @@ module.exports = {
       userName: credentials.mongoDB.userName,
       password: credentials.mongoDB.password
     },
+    es: {
+      userName: credentials.es.userName,
+      password: credentials.es.password
+    },
     redis: {
       password: credentials.redis.password
     }

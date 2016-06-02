@@ -20,7 +20,9 @@ module.exports = function(config, clients) {
     }]
   });
   
-  StudySchema.plugin(mongoosastic);
+  StudySchema.plugin(mongoosastic, {
+    auth: config.credentials.es.userName + ':' + config.credentials.es.password
+  });
   
   mongoose.model('Study', StudySchema);
     
