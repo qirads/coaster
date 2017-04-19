@@ -3,3 +3,4 @@
 /config/certs
 /config/credentials
 .sass-cache
+.vscode
