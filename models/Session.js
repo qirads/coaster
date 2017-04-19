@@ -26,8 +26,8 @@ module.exports = function(config, clients) {
     this.set('token', jwt.sign({
       hasAdminPrivileges : this.hasAdminPrivileges
     }, config.jwts.secretKey, {
-      subject : this.userId,
-      jwtid: this._id,
+      subject : this.userId.toString(),
+      jwtid: this._id.toString(),
       expiresIn: config.jwts.secondsToExpiration
     }), String, { strict: false });
   }

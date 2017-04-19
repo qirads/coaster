@@ -1,10 +1,10 @@
 'use strict';
 
 var _ = require('lodash');
-var PEG = require('pegjs');
+var peg = require('pegjs');
 var fs = require('fs');
 var grammar = fs.readFileSync('routes/api/middleware/parse.grammar.txt').toString();
-var parser = PEG.buildParser(grammar);
+var parser = peg.generate(grammar);
 
 function parse(req, res, next) {
   var parsedCriteria = [];

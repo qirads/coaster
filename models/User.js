@@ -20,7 +20,7 @@ module.exports = function(config, clients) {
   UserSchema.methods.matchesHash = matchesHash;
   UserSchema.methods.generateJWT = generateJWT;
   UserSchema.methods.purge = purge;
-  
+
   ['toJSON', 'toObject'].forEach(function (prop) {
     UserSchema.set(prop, {
       transform: function (doc, ret) {
@@ -29,7 +29,7 @@ module.exports = function(config, clients) {
       }
     });
   });
-  
+    
   mongoose.model('User', UserSchema);
 
   function setPassword(password) {
@@ -46,8 +46,8 @@ module.exports = function(config, clients) {
     this.set('token', jwt.sign({
       hasAdminPrivileges : this.isAdmin
     }, config.jwts.secretKey, {
-      subject : this._id,
-      jwtid: sessionId,
+      subject : this._id.toString(),
+      jwtid: sessionId.toString(),
       expiresIn: config.jwts.secondsToExpiration
     }), String, { strict: false });
   }

@@ -30,7 +30,7 @@ module.exports = function(app, config, clients) {
 
   function performInitialSearch(req, res, next) {
     Study.search({
-      bool: { must: req.conditions }
+      bool: { filter: req.conditions }
     }, {
       size: req.body.pageSize ? Math.min(config.resultLimit, req.body.pageSize) : config.resultLimit,
       from: 0,
@@ -63,7 +63,7 @@ module.exports = function(app, config, clients) {
       var pageNumber = req.query.pageNumber ? req.query.pageNumber : 0;
       var pageSize = req.query.pageSize ? Math.min(config.resultLimit, req.query.pageSize) : config.resultLimit;
       Study.search({
-        bool: { must: req.conditions }
+        bool: { filter: req.conditions }
       }, {
         size: pageSize,
         from: pageSize * pageNumber + 1,
