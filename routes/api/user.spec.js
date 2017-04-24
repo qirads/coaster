@@ -102,7 +102,7 @@ describe('users', function() {
       requestOptions.body.password = 'ephemeral';
       
       request.post(requestOptions, function(error, response, body) {
-        localUserId = body._id;
+        localUserId = body.id;
         expect(response.statusCode).toBe(201);
         done();
       });
@@ -113,7 +113,7 @@ describe('users', function() {
       requestOptions.body.domain = 'CORP';
       
       request.post(requestOptions, function(error, response, body) {
-        nonLocalUserId = body._id;
+        nonLocalUserId = body.id;
         expect(response.statusCode).toBe(201);
         done();
       });

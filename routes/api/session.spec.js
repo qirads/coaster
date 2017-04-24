@@ -95,7 +95,7 @@ describe('sessions', function() {
       requestOptions.body.credentials.password = config.credentials.admin.password;
       request.post(requestOptions, function(error, response, body) {
         expect(body.token).toBeDefined();
-        adminSessionId = body._id;
+        adminSessionId = body.id;
         adminToken = body.token;
         requestOptions.headers = { Authorization: 'Bearer ' + adminToken };
         expect(response.statusCode).toBe(201);
@@ -103,13 +103,13 @@ describe('sessions', function() {
         requestOptions.body = { userName: 'ephemeral', password: 'ephemeral', activated: true };
         request.post(requestOptions, function(error, response, body) {
           expect(response.statusCode).toBe(201);
-          nonAdminUserId = body._id;
+          nonAdminUserId = body.id;
           delete requestOptions.headers;
           requestOptions.url = baseUrl + 'sessions';
           requestOptions.body = { credentials: { userName: 'ephemeral', password: 'ephemeral' } };
           request.post(requestOptions, function(error, response, body) {
             expect(response.statusCode).toBe(201);
-            nonAdminSessionId = body._id;
+            nonAdminSessionId = body.id;
             nonAdminToken = body.token;
             done();
           });

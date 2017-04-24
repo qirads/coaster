@@ -10,8 +10,9 @@ module.exports = function(app, config, clients) {
   var _ = require('lodash');
   
   var defaults = {
-    prefix: '',
     allowRegex: false,
+    outputFn: outputFn,
+    prefix: '',
     private: ['__v']    
   };
   
@@ -34,6 +35,27 @@ module.exports = function(app, config, clients) {
   
   function customizer(a, b) {
     return (_.isArray(a)) ? a.concat(b) : undefined;
+  }
+
+  function outputFn(req, res) {
+
+    function renameId(result) {
+      if (result._id) {
+        result.id = result._id;
+        delete result._id;
+      }
+    }
+
+    if (req.erm.result) {
+      if (_.isArray(req.erm.result)) {
+        _.forEach(req.erm.result, renameId);
+      } else {
+        renameId(req.erm.result);
+      }
+      res.status(req.erm.statusCode).json(req.erm.result)
+    } else {
+      res.sendStatus(req.erm.statusCode)
+    }
   }
     
 };
