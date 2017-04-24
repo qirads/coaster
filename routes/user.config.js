@@ -2,8 +2,7 @@
 
 module.exports = function(app, config, clients) {
 
-  var mongoose = require('mongoose');
-  var User = mongoose.model('User');
+  var User = clients.mongoose.model('User');
   var createError = require('http-errors');
   var allowPatchOnly = require('./middleware/allowMethods.middleware')('PATCH');
   var validate = require('./middleware/validate.middleware');

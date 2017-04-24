@@ -1,10 +1,10 @@
 'use strict';
 
-module.exports = function(config, client) {
+module.exports = function(config, redis) {
   
   var jwt = require('express-jwt');
-  var blacklist = require('../../../lib/blacklist.wrapper')(client);
-    
+  var blacklist = require('../blacklist.wrapper')(redis);
+
   return jwt({
     requestProperty: 'auth',
     secret: config.jwts.secretKey,

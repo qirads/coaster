@@ -1,12 +1,11 @@
 'use strict';
 
-module.exports = function(config) {
+module.exports = function(config, clients) {
 
   var passport = require('passport');
   var LdapStrategy = require('passport-ldapauth');
   var LocalStrategy = require('passport-local');
-  var mongoose = require('mongoose');
-  var User = mongoose.model('User');
+  var User = clients.mongoose.model('User');
   var createError = require('http-errors');
   var _ = require('lodash');
 

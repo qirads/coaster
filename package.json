@@ -5,7 +5,7 @@
     "start": "node ./bin/www",
     "develop": "nodemon -e js,json,txt ./bin/www",
     "lint": "eslint --debug --no-eslintrc --ignore-pattern node_modules .",
-    "test": "jasmine-node --verbose --forceexit --captureExceptions models routes"
+    "test": "jasmine-node --verbose --forceexit --captureExceptions routes"
   },
   "dependencies": {
     "body-parser": "^1.16.1",

@@ -10,6 +10,6 @@ module.exports = function(config, clients) {
     count: Number
   });
   
-  mongoose.model('Search', SearchSchema);
+  return clients.mongoose.model('Search', SearchSchema);
   
 }

@@ -24,6 +24,6 @@ module.exports = function(config, clients) {
     auth: config.credentials.es.userName + ':' + config.credentials.es.password
   });
   
-  mongoose.model('Study', StudySchema);
+  return clients.mongoose.model('Study', StudySchema);
     
 }

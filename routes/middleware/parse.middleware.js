@@ -3,7 +3,7 @@
 var _ = require('lodash');
 var peg = require('pegjs');
 var fs = require('fs');
-var grammar = fs.readFileSync('routes/api/middleware/parse.grammar.txt').toString();
+var grammar = fs.readFileSync(__dirname + '/parse.grammar.txt').toString();
 var parser = peg.generate(grammar);
 
 function parse(req, res, next) {

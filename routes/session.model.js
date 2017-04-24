@@ -4,7 +4,7 @@ module.exports = function(config, clients) {
 
   var mongoose = require('mongoose');
   var jwt = require('jsonwebtoken');
-  var blacklist = require('../lib/blacklist.wrapper')(clients.redis);
+  var blacklist = require('./blacklist.wrapper')(clients.redis);
     
   var SessionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -36,6 +36,6 @@ module.exports = function(config, clients) {
     blacklist.revoke({ jti: this._id, sub: this.userId }, config.jwts.secondsToExpiration);
   }
   
-  mongoose.model('Session', SessionSchema);
+  return clients.mongoose.model('Session', SessionSchema);
 
 }

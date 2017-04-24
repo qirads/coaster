@@ -5,7 +5,7 @@ module.exports = function(config, clients) {
   var mongoose = require('mongoose');
   var crypto = require('crypto');
   var jwt = require('jsonwebtoken');
-  var blacklist = require('../lib/blacklist.wrapper')(clients.redis);
+  var blacklist = require('./blacklist.wrapper')(clients.redis);
   
   var UserSchema = new mongoose.Schema({
     userName: { type: String, lowercase: true, unique: true, required: true },
@@ -29,8 +29,8 @@ module.exports = function(config, clients) {
       }
     });
   });
-    
-  mongoose.model('User', UserSchema);
+
+  return clients.mongoose.model('User', UserSchema);
 
   function setPassword(password) {
     this.salt = crypto.randomBytes(16).toString('hex');

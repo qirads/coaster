@@ -4,9 +4,9 @@
 
 var request = require('request');
 
-var app = require('../../lib/app');
-var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
-var config = require('../../config');
+var app = require('../lib/app');
+var errorHandler = require('../lib/express-error-handler.wrapper')(app);
+var config = require('../config');
 var server = require('http').createServer(app);
 var baseUrl = 'http://' + config.hostName + ':3000/api/dummies';
 

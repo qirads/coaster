@@ -4,9 +4,9 @@
 
 var request = require('request');
 
-var app = require('../../lib/app');
-var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
-var config = require('../../config');
+var app = require('../lib/app');
+var errorHandler = require('../lib/express-error-handler.wrapper')(app);
+var config = require('../config');
 var server = require('http').createServer(app);
 var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
 
@@ -214,7 +214,7 @@ describe('sessions', function() {
       });
     });
 
-    it('returns status code 200 and no token if state is set to user-logged-out and token no longer works', function(done) {
+    it('returns status code 401 and no token if state is set to user-logged-out and token no longer works', function(done) {
       requestOptions.body = { state: 'user-logged-out' };
       request.patch(requestOptions, function(error, response, body) {
         expect(body.token).not.toBeDefined();

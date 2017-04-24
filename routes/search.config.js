@@ -2,8 +2,7 @@
 
 module.exports = function(app, config, clients) {
 
-  var mongoose = require('mongoose');
-  var Study = mongoose.model('Study');
+  var Study = clients.mongoose.model('Study');
   var disallow = require('./middleware/allowMethods.middleware')();
   var validate = require('./middleware/validate.middleware');
   var contextFilter = require('./middleware/contextFilter.filter');

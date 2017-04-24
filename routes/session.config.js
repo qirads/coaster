@@ -2,10 +2,9 @@
 
 module.exports = function(app, config, clients) {
 
-  var mongoose = require('mongoose');
-  var Session = mongoose.model('Session');
+  var Session = clients.mongoose.model('Session');
   var limiter = require('express-limiter')(null, clients.redis);
-  var passportWrapper = require('./middleware/passport.wrapper')(config);
+  var passportWrapper = require('./middleware/passport.wrapper')(config, clients);
   var allowPatchOnly = require('./middleware/allowMethods.middleware')('PATCH');
   var validate = require('./middleware/validate.middleware');
   var contextFilter = require('./middleware/contextFilter.filter');
