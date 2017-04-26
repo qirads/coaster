@@ -34,11 +34,11 @@ module.exports = function(config, clients) {
 
   function setPassword(password) {
     this.salt = crypto.randomBytes(16).toString('hex');
-    this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
+    this.hash = crypto.pbkdf2Sync(password, this.salt, 100000, 64, 'sha512').toString('hex');
   }
 
   function matchesHash(password) {
-    var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
+    var hash = crypto.pbkdf2Sync(password, this.salt, 100000, 64, 'sha512').toString('hex');
     return this.hash === hash;
   }
   
