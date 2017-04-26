@@ -8,7 +8,6 @@
 
 var app = require('../lib/app');
 var config = require('../config');
-var path = require('path');
 var https = require('https');
 var errorHandler = require('../lib/express-error-handler.wrapper')(app);
 var debug = require('debug')('coaster:www');
@@ -26,7 +25,7 @@ app.set('port', port, config.hostName);
 
 require('ssl-root-cas/latest')
   .inject()
-  .addFile(path.join(__dirname, '..', config.filePaths.rootCertificate));
+  .addFile(config.filePaths.rootCertificate);
 
 var server = https.createServer({
   key : config.certs.privateKey,

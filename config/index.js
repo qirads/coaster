@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 var credentials = require('./credentials');
 
 module.exports = {
@@ -8,7 +9,7 @@ module.exports = {
   ldapPath: 'ldap://www.glass.org:10389',
   dbPath: 'mongodb://www.glass.org/coaster',
   filePaths: {
-    rootCertificate: 'config/certs/dev-root-cert.pem'
+    rootCertificate: path.join(__dirname, 'certs', 'dev-root-cert.pem')
   },
   credentials: {
     admin: {
@@ -28,12 +29,12 @@ module.exports = {
     }
   },
   certs: {
-    privateKey: fs.readFileSync('config/certs/dev-key.pem'),
-    certificate: fs.readFileSync('config/certs/dev-cert.pem'),
-    rootCertificate: fs.readFileSync('config/certs/dev-root-cert.pem')
+    privateKey: fs.readFileSync(path.join(__dirname, 'certs', 'dev-key.pem')),
+    certificate: fs.readFileSync(path.join(__dirname, 'certs', 'dev-cert.pem')),
+    rootCertificate: fs.readFileSync(path.join(__dirname, 'certs', 'dev-root-cert.pem'))
   },
   jwts: {
-    secretKey: fs.readFileSync('config/jwts/jwtSecretKey.txt'),
+    secretKey: fs.readFileSync(path.join(__dirname, 'jwts', 'jwtSecretKey.txt')),
     secondsToExpiration: 300  
   },
   resultLimit: 100
