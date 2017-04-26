@@ -5,7 +5,7 @@ module.exports = function(config, clients) {
   var mongoose = require('mongoose');
   var crypto = require('crypto');
   var jwt = require('jsonwebtoken');
-  var blacklist = require('./blacklist.wrapper')(clients.redis);
+  var blacklist = require('../common/blacklist.wrapper')(clients.redis);
   
   var UserSchema = new mongoose.Schema({
     userName: { type: String, lowercase: true, unique: true, required: true },

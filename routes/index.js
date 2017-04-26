@@ -8,8 +8,8 @@ module.exports = function(app, config, clients) {
   // setup api routes
   _.forEach(['user', 'session', 'study', 'search'], function(endpoint) {
     restifyWrapper.serve(
-      require('./' + endpoint + '.model')(config, clients),
-      require('./' + endpoint + '.config')(app, config, clients));
+      require('./' + endpoint + '/' + endpoint + '.model')(config, clients),
+      require('./' + endpoint + '/' + endpoint + '.config')(app, config, clients));
   });
   
   // return 404 for any unmatched API routes

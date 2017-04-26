@@ -3,13 +3,13 @@
 module.exports = function(app, config, clients) {
 
   var Study = clients.mongoose.model('Study');
-  var disallow = require('./middleware/allowMethods.middleware')();
-  var validate = require('./middleware/validate.middleware');
-  var contextFilter = require('./middleware/contextFilter.filter');
-  var authenticate = require('./middleware/jwt.wrapper')(config, clients.redis);
-  var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
-  var authorize = require('./middleware/authorize.middleware');
-  var parse = require('./middleware/parse.middleware');
+  var disallow = require('../common/allowMethods.middleware')();
+  var validate = require('../common/validate.middleware');
+  var contextFilter = require('../common/contextFilter.filter');
+  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
+  var allowAdminOnly = require('../common/allowAdminOnly.middleware');
+  var authorize = require('../common/authorize.middleware');
+  var parse = require('./parse.middleware');
   var _ = require('lodash');
   
   var validateCreate = validate([{

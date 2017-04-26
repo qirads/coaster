@@ -3,8 +3,8 @@
 module.exports = function(app, config, clients) {
 
   var Study = clients.mongoose.model('Study');
-  var disallow = require('./middleware/allowMethods.middleware')();
-  var authenticate = require('./middleware/jwt.wrapper')(config, clients.redis);
+  var disallow = require('../common/allowMethods.middleware')();
+  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
   var createError = require('http-errors');
   var _ = require('lodash');
   

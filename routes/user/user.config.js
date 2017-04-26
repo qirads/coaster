@@ -4,11 +4,11 @@ module.exports = function(app, config, clients) {
 
   var User = clients.mongoose.model('User');
   var createError = require('http-errors');
-  var allowPatchOnly = require('./middleware/allowMethods.middleware')('PATCH');
-  var validate = require('./middleware/validate.middleware');
-  var authenticate = require('./middleware/jwt.wrapper')(config, clients.redis);
-  var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
-  var authorize = require('./middleware/authorize.middleware');
+  var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
+  var validate = require('../common/validate.middleware');
+  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
+  var allowAdminOnly = require('../common/allowAdminOnly.middleware');
+  var authorize = require('../common/authorize.middleware');
         
   var validateCreate = validate([{
     name: 'userName',

@@ -4,7 +4,7 @@ module.exports = function(config, clients) {
 
   var mongoose = require('mongoose');
   var jwt = require('jsonwebtoken');
-  var blacklist = require('./blacklist.wrapper')(clients.redis);
+  var blacklist = require('../common/blacklist.wrapper')(clients.redis);
     
   var SessionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

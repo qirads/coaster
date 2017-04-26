@@ -4,13 +4,13 @@ module.exports = function(app, config, clients) {
 
   var Session = clients.mongoose.model('Session');
   var limiter = require('express-limiter')(null, clients.redis);
-  var passportWrapper = require('./middleware/passport.wrapper')(config, clients);
-  var allowPatchOnly = require('./middleware/allowMethods.middleware')('PATCH');
-  var validate = require('./middleware/validate.middleware');
-  var contextFilter = require('./middleware/contextFilter.filter');
-  var authenticate = require('./middleware/jwt.wrapper')(config, clients.redis);
-  var allowAdminOnly = require('./middleware/allowAdminOnly.middleware');
-  var authorize = require('./middleware/authorize.middleware');
+  var passportWrapper = require('./passport.wrapper')(config, clients);
+  var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
+  var validate = require('../common/validate.middleware');
+  var contextFilter = require('../common/contextFilter.filter');
+  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
+  var allowAdminOnly = require('../common/allowAdminOnly.middleware');
+  var authorize = require('../common/authorize.middleware');
   var createError = require('http-errors');
     
   var _ = require('lodash');
