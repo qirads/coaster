@@ -41,7 +41,11 @@ module.exports = function(app) {
     restify.serve(app, model, _.merge({}, defaults, routeConfig, customizer));
   }
 
-  return { serve };
+  var wrapper = {
+    serve: serve
+  };
+
+  return wrapper;
 
   function customizer(a, b) {
     return (_.isArray(a)) ? a.concat(b) : undefined;

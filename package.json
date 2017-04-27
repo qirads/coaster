@@ -36,5 +36,27 @@
   "devDependencies": {
     "pem": "^1.9.4",
     "request": "^2.79.0"
-  }
+  },
+  "description": "Backend for Glass, a full-text radiology report search tool.",
+  "main": "bin/www",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yaacovCR/coaster.git"
+  },
+  "keywords": [
+    "radiology",
+    "report",
+    "reports",
+    "search",
+    "full",
+    "text",
+    "keyword",
+    "backend"
+  ],
+  "author": "Yaacov Rydzinski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yaacovCR/coaster/issues"
+  },
+  "homepage": "https://github.com/yaacovCR/coaster#readme"
 }

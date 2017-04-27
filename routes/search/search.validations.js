@@ -9,6 +9,8 @@ var create = [{
   type: 'number'
 }];
 
-module.exports = {
-  create
-}
+var validations = {
+  create: create
+};
+
+module.exports = validations;

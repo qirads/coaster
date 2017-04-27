@@ -26,7 +26,9 @@ var update = [{
   allowedValues: allowedSessionStates
 }];
 
-module.exports = {
-  create,
-  update
-}
+var validations = {
+  create: create,
+  update: validate
+};
+
+module.exports = validations;

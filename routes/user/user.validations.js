@@ -21,14 +21,16 @@ var create = [{
   }];
 
 var update = [{
-    name: 'password',
-    type: 'string'
-  },{
-    name: 'activated',
-    type: 'boolean'
-  }]
+  name: 'password',
+  type: 'string'
+},{
+  name: 'activated',
+  type: 'boolean'
+}];
 
-  module.exports = {
-    create,
-    update
-  }
+var validations = {
+  create: create,
+  update: update
+};
+
+module.exports = validations;
