@@ -13,7 +13,7 @@ module.exports = function(app) {
   };
   
   defaults.onError = function (err, req, res, next) {
-    next(createError(err.statusCode));
+    next(createError(req.erm.statusCode));
   };
 
   defaults.outputFn = function(req, res) {
