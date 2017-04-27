@@ -28,7 +28,7 @@ var update = [{
 
 var validations = {
   create: create,
-  update: validate
+  update: update
 };
 
 module.exports = validations;
