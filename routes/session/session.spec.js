@@ -34,6 +34,7 @@ describe('sessions', function() {
       requestOptions.body.credentials.password = 'wrong_password';
       
       request.post(requestOptions, function(error, response) {
+        console.log(error);
         expect(response.statusCode).toBe(400);
         done();
       });

@@ -5,6 +5,7 @@ module.exports = function(clients) {
   var Study = clients.mongoose.model('Study');
   var disallow = require('../common/allowMethods.middleware')();
   var validate = require('../common/validate.middleware');
+  var searchValidations = require('./search.validations.js');
   var contextFilter = require('../common/contextFilter.filter');
   var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
@@ -13,15 +14,6 @@ module.exports = function(clients) {
   var _ = require('lodash');
   var resultLimit = require('../common/options').resultLimit;
 
-  var validateCreate = validate([{
-    name: 'criteria',
-    type: ['string'],
-    required: true
-  }, {
-    name: 'pageSize',
-    type: 'number'
-  }]);
-  
   function addUserId(req, res, next) {
     req.body.userId = req.auth.sub;
     req.body.createdAt = Date.now();
@@ -82,11 +74,21 @@ module.exports = function(clients) {
   
   var options = {
     name: 'searches',
-    preCreate: [ authenticate, validateCreate, addUserId, parse, performInitialSearch ],
+    preCreate: [
+      authenticate,
+      validate(searchValidations.create),
+      addUserId,
+      parse,
+      performInitialSearch
+    ],
     postCreate: [ addInitialResults ],
     contextFilter: contextFilter,
     preRead: [ authenticate ],
-    postRead: [ getCriteria, parse, addResults ],
+    postRead: [
+      getCriteria,
+      parse,
+      addResults
+    ],
     preUpdate: [ disallow ],
     preRemove: [ disallow ],
   };  

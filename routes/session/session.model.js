@@ -5,7 +5,9 @@ module.exports = function(clients) {
   var mongoose = require('mongoose');
   var jwt = require('jsonwebtoken');
   var blacklist = require('../common/blacklist.wrapper')(clients.redis);
-  var secondsToJwtExpiration = require('../common/options').secondsToJwtExpiration;
+  var options = require('../common/options'); 
+  var allowedSessionStates = options.allowedSessionStates;
+  var secondsToJwtExpiration = options.secondsToJwtExpiration;
     
   var SessionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -13,7 +15,7 @@ module.exports = function(clients) {
     state: {
       type: String,
       default: 'open',
-      enum: [ 'open', 'user-logged-out', 'user-timed-out', 'user-revoked', 'admin-revoked' ]
+      enum: allowedSessionStates
     },
     createdAt: { type: Date, required: true, default: Date.now },
     lastRefreshedAt: { type: Date, required: true, default: Date.now },

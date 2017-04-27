@@ -6,30 +6,12 @@ module.exports = function(clients) {
   var createError = require('http-errors');
   var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
   var validate = require('../common/validate.middleware');
+  var userValidations = require('./user.validations.js');
   var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
   var authorize = require('../common/authorize.middleware');
-        
-  var validateCreate = validate([{
-    name: 'userName',
-    type: 'string',
-    required: true
-  }, {
-    name: 'password',
-    type: 'string'
-  }, {
-    name: 'domain',
-    type: 'string',
-    allowedValues: User.schema.path('domain').enumValues    
-  }, {
-    name: 'isAdmin',
-    type: 'boolean'
-  }, {
-    name: 'activated',
-    type: 'boolean'
-  }]);
-
-  function checkCreateBody(req, res, next) {
+  
+  function checkBody(req, res, next) {
     if ((!req.body.domain || req.body.domain === 'local') && !req.body.password) {
       return next(createError(400, 'Local accounts require passwords.'));
     }
@@ -38,26 +20,10 @@ module.exports = function(clients) {
     }
     next();
   }
-
-  function checkUpdateBody(req, res, next) {
-    if (req.body.activated !== undefined && req.auth.sub === req.params.id) {
-      return next(createError(400, 'A user cannot activate or deactivate herself.'));
-    }
-    next();
-  }
     
   var authorizeAccess = authorize(function(req) {
     return req.auth.hasAdminPrivileges || req.auth.sub === req.params.id;
   });
-  
-  var validateUpdate = validate([{
-    name: 'password',
-    type: 'string'
-  },{
-    name: 'activated',
-    type: 'boolean'
-  }
-  ]);
     
   function checkDocument(req, res, next) {
     if (req.erm.document && req.erm.document.domain !== 'local' && req.body.password) {
@@ -68,8 +34,7 @@ module.exports = function(clients) {
   
   function updateTokens(req, res, next) {
     if (req.body.password !== undefined && req.auth.sub === req.params.id) {
-      req.erm.result.purge();
-      req.erm.result.generateJWT(req.auth.jti);
+      req.erm.result.updateTokens(req.auth.jti);
     }
     next();
   }
@@ -83,10 +48,19 @@ module.exports = function(clients) {
     name: 'users',
     private: ['salt', 'hash'],
     preMiddleware: [ authenticate ],
-    preCreate: [ allowAdminOnly, validateCreate, checkCreateBody ],
-    findOneAndUpdate: false,
+    preCreate: [
+      allowAdminOnly,
+      validate(userValidations.create),
+      checkBody
+    ],
     preRead: [ authorizeAccess ],
-    preUpdate: [ authorizeAccess, allowPatchOnly, validateUpdate, checkUpdateBody, checkDocument ],
+    findOneAndUpdate: false,
+    preUpdate: [
+      authorizeAccess,
+      allowPatchOnly,
+      validate(userValidations.update),
+      checkDocument
+    ],
     postUpdate: [ updateTokens ],
     preRemove: [ allowAdminOnly ],
     postRemove: [ purgeTokens ]

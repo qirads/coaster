@@ -6,11 +6,13 @@ module.exports = function(clients) {
   var crypto = require('crypto');
   var jwt = require('jsonwebtoken');
   var blacklist = require('../common/blacklist.wrapper')(clients.redis);
-  var secondsToJwtExpiration = require('../common/options').secondsToJwtExpiration;
+  var options = require('../common/options'); 
+  var secondsToJwtExpiration = options.secondsToJwtExpiration;
+  var allowedDomains = options.allowedDomains;
   
   var UserSchema = new mongoose.Schema({
     userName: { type: String, lowercase: true, unique: true, required: true },
-    domain: { type: String, enum: [ 'CORP', 'local' ], default: 'local' },
+    domain: { type: String, enum: allowedDomains, default: 'local' },
     isAdmin: { type: Boolean, default: false },
     activated: { type: Boolean, default: false },
     hash: { type: String },
@@ -21,6 +23,7 @@ module.exports = function(clients) {
   UserSchema.methods.matchesHash = matchesHash;
   UserSchema.methods.generateJWT = generateJWT;
   UserSchema.methods.purge = purge;
+  UserSchema.methods.updateTokens = updateTokens;
 
   ['toJSON', 'toObject'].forEach(function (prop) {
     UserSchema.set(prop, {
@@ -55,6 +58,11 @@ module.exports = function(clients) {
   
   function purge() {
     blacklist.purge({ sub: this._id }, secondsToJwtExpiration);
-  }  
+  }
+
+  function updateTokens(sessionId) {
+    this.purge();
+    this.generateJWT(sessionId);
+  }
 
 }

@@ -7,38 +7,12 @@ module.exports = function(clients) {
   var passportWrapper = require('./passport.wrapper')(clients);
   var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
   var validate = require('../common/validate.middleware');
+  var sessionValidations = require('./session.validations.js');
   var contextFilter = require('../common/contextFilter.filter');
   var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
   var authorize = require('../common/authorize.middleware');
   var createError = require('http-errors');
-    
-  var _ = require('lodash');
-  
-  var validateCreate = validate([{
-    name: 'credentials',
-    type: 'object',
-    required: true,
-    schema: [
-      {
-        name: 'userName',
-        type: 'string',
-        required: true
-      },
-      {
-        name: 'password',
-        type: 'string',
-        required: true
-      }
-    ]
-  }]);
-  
-  var validateUpdate = validate([{
-    name: 'state',
-    type: 'string',
-    required: true,
-    allowedValues: Session.schema.path('state').enumValues
-  }]);
 
   var limiterWrapper = limiter({
     lookup: ['connection.remoteAddress'],
@@ -92,17 +66,32 @@ module.exports = function(clients) {
   var options = {
     name: 'sessions',
     preMiddleware: (process.env.NODE_ENV === 'development') ? [] : limiterWrapper,
-    preCreate: [ validateCreate, passportWrapper.initialize(), passportWrapper.authenticate() ],
+    preCreate: [
+      validate(sessionValidations.create),
+      passportWrapper.initialize(),
+      passportWrapper.authenticate()
+    ],
     postCreate: [ updateTokens ],
     contextFilter: contextFilter,
-    preRead: [ authenticate, authorizeAccess ],
+    preRead: [
+      authenticate,
+      authorizeAccess
+    ],
     findOneAndUpdate: false,
     preUpdate: [
-      authenticate, authorizeAccess, allowPatchOnly, validateUpdate, authorizeAdminUpdate,
-      checkDocument, updateTimestamps
+      authenticate,
+      authorizeAccess,
+      allowPatchOnly,
+      validate(sessionValidations.update),
+      authorizeAdminUpdate,
+      checkDocument,
+      updateTimestamps
     ],
     postUpdate: [ updateTokens ],
-    preRemove: [ authenticate, allowAdminOnly ],
+    preRemove: [
+      authenticate,
+      allowAdminOnly
+    ],
     postRemove: [ revokeTokens ],
   };  
     
