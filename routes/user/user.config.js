@@ -1,12 +1,12 @@
 'use strict';
 
-module.exports = function(app, config, clients) {
+module.exports = function(clients) {
 
   var User = clients.mongoose.model('User');
   var createError = require('http-errors');
   var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
   var validate = require('../common/validate.middleware');
-  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
+  var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
   var authorize = require('../common/authorize.middleware');
         

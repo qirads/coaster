@@ -1,10 +1,11 @@
 'use strict';
 
-module.exports = function(config, clients) {
+module.exports = function(clients) {
 
   var mongoose = require('mongoose');
   var jwt = require('jsonwebtoken');
   var blacklist = require('../common/blacklist.wrapper')(clients.redis);
+  var secondsToJwtExpiration = require('../common/options').secondsToJwtExpiration;
     
   var SessionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -25,15 +26,15 @@ module.exports = function(config, clients) {
   function generateJWT() {
     this.set('token', jwt.sign({
       hasAdminPrivileges : this.hasAdminPrivileges
-    }, config.jwts.secretKey, {
+    }, process.env.COASTER_JWT_SECRETKEY, {
       subject : this.userId.toString(),
       jwtid: this._id.toString(),
-      expiresIn: config.jwts.secondsToExpiration
+      expiresIn: secondsToJwtExpiration
     }), String, { strict: false });
   }
     
   function revoke() {
-    blacklist.revoke({ jti: this._id, sub: this.userId }, config.jwts.secondsToExpiration);
+    blacklist.revoke({ jti: this._id, sub: this.userId }, secondsToJwtExpiration);
   }
   
   return clients.mongoose.model('Session', SessionSchema);

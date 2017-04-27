@@ -3,12 +3,10 @@
 'use strict';
 
 var request = require('request');
-
-var app = require('../lib/app');
-var errorHandler = require('../lib/express-error-handler.wrapper')(app);
-var config = require('../config');
+var app = require('../../lib/app');
+var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
 var server = require('http').createServer(app);
-var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
+var baseUrl = process.env.COASTER_PATHS_HTTP + '/api/v1/';
 
 describe('users', function() {
 
@@ -20,8 +18,8 @@ describe('users', function() {
       server.listen(3000);
       server.on('listening', function() {
         requestOptions = { url: baseUrl + 'sessions', json : true, body: { credentials: {} } };
-        requestOptions.body.credentials.userName = config.credentials.admin.userName;
-        requestOptions.body.credentials.password = config.credentials.admin.password;
+        requestOptions.body.credentials.userName = process.env.COASTER_CREDENTIALS_ADMIN_USERNAME;
+        requestOptions.body.credentials.password = process.env.COASTER_CREDENTIALS_ADMIN_PASSWORD;
         request.post(requestOptions, function(error, response, body) {
           adminToken = body.token;
           requestOptions.url = baseUrl + 'users';

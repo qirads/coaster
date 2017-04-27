@@ -1,14 +1,14 @@
 'use strict';
 
-module.exports = function(app, config, clients) {
+module.exports = function(clients) {
 
   var Session = clients.mongoose.model('Session');
   var limiter = require('express-limiter')(null, clients.redis);
-  var passportWrapper = require('./passport.wrapper')(config, clients);
+  var passportWrapper = require('./passport.wrapper')(clients);
   var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
   var validate = require('../common/validate.middleware');
   var contextFilter = require('../common/contextFilter.filter');
-  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
+  var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
   var authorize = require('../common/authorize.middleware');
   var createError = require('http-errors');
@@ -91,7 +91,7 @@ module.exports = function(app, config, clients) {
 
   var options = {
     name: 'sessions',
-    preMiddleware: (app.get('env') === 'development') ? [] : limiterWrapper,
+    preMiddleware: (process.env.NODE_ENV === 'development') ? [] : limiterWrapper,
     preCreate: [ validateCreate, passportWrapper.initialize(), passportWrapper.authenticate() ],
     postCreate: [ updateTokens ],
     contextFilter: contextFilter,

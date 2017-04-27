@@ -1,11 +1,12 @@
 'use strict';
 
-module.exports = function(config, clients) {
+module.exports = function(clients) {
 
   var mongoose = require('mongoose');
   var crypto = require('crypto');
   var jwt = require('jsonwebtoken');
   var blacklist = require('../common/blacklist.wrapper')(clients.redis);
+  var secondsToJwtExpiration = require('../common/options').secondsToJwtExpiration;
   
   var UserSchema = new mongoose.Schema({
     userName: { type: String, lowercase: true, unique: true, required: true },
@@ -45,15 +46,15 @@ module.exports = function(config, clients) {
   function generateJWT(sessionId) {
     this.set('token', jwt.sign({
       hasAdminPrivileges : this.isAdmin
-    }, config.jwts.secretKey, {
+    }, process.env.COASTER_JWT_SECRETKEY, {
       subject : this._id.toString(),
       jwtid: sessionId.toString(),
-      expiresIn: config.jwts.secondsToExpiration
+      expiresIn: secondsToJwtExpiration
     }), String, { strict: false });
   }
   
   function purge() {
-    blacklist.purge({ sub: this._id }, config.jwts.secondsToExpiration);
+    blacklist.purge({ sub: this._id }, secondsToJwtExpiration);
   }  
 
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(config, clients) {
+module.exports = function(clients) {
 
   var mongoose = require('mongoose');
   var mongoosastic = require('mongoosastic');
@@ -21,7 +21,7 @@ module.exports = function(config, clients) {
   });
   
   StudySchema.plugin(mongoosastic, {
-    auth: config.credentials.es.userName + ':' + config.credentials.es.password
+    auth: process.env.COASTER_CREDENTIALS_ES_USERNAME + ':' + process.env.COASTER_CREDENTIALS_ES_PASSWORD
   });
   
   return clients.mongoose.model('Study', StudySchema);

@@ -1,15 +1,16 @@
 'use strict';
 
-module.exports = function(app, config, clients) {
+module.exports = function(app, clients) {
 
   var restifyWrapper = require('./restify.wrapper')(app);
+  var createError = require('http-errors');
   var _ = require('lodash');
 
   // setup api routes
   _.forEach(['user', 'session', 'study', 'search'], function(endpoint) {
     restifyWrapper.serve(
-      require('./' + endpoint + '/' + endpoint + '.model')(config, clients),
-      require('./' + endpoint + '/' + endpoint + '.config')(app, config, clients));
+      require('./' + endpoint + '/' + endpoint + '.model')(clients),
+      require('./' + endpoint + '/' + endpoint + '.config')(clients));
   });
   
   // return 404 for any unmatched API routes

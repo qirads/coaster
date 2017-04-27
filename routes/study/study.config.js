@@ -1,10 +1,10 @@
 'use strict';
 
-module.exports = function(app, config, clients) {
+module.exports = function(clients) {
 
   var Study = clients.mongoose.model('Study');
   var disallow = require('../common/allowMethods.middleware')();
-  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
+  var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var createError = require('http-errors');
   var _ = require('lodash');
   

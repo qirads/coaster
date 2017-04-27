@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(config, clients) {
+module.exports = function(clients) {
 
   var passport = require('passport');
   var LdapStrategy = require('passport-ldapauth');
@@ -11,7 +11,7 @@ module.exports = function(config, clients) {
 
   var LDAP_OPTS = {
     server: {
-      url: config.ldapPath,
+      url: process.env.COASTER_PATHS_LDAP,
       searchBase: 'dc=CORP,dc=example,dc=com',
       searchFilter: '(uid={{username}})'
     }

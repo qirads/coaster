@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(config, clients) {
+module.exports = function(clients) {
 
   var mongoose = require('mongoose');
   var SearchSchema = new mongoose.Schema({

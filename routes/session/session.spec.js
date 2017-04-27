@@ -3,12 +3,10 @@
 'use strict';
 
 var request = require('request');
-
-var app = require('../lib/app');
-var errorHandler = require('../lib/express-error-handler.wrapper')(app);
-var config = require('../config');
+var app = require('../../lib/app');
+var errorHandler = require('../../lib/express-error-handler.wrapper')(app);
 var server = require('http').createServer(app);
-var baseUrl = 'http://' + config.hostName + ':3000/api/v1/';
+var baseUrl = process.env.COASTER_PATHS_HTTP + '/api/v1/';
 
 describe('sessions', function() {
 
@@ -91,8 +89,8 @@ describe('sessions', function() {
     });
     
     it('returns status code 201 and token with good credentials', function(done) {
-      requestOptions.body.credentials.userName = config.credentials.admin.userName;
-      requestOptions.body.credentials.password = config.credentials.admin.password;
+      requestOptions.body.credentials.userName = process.env.COASTER_CREDENTIALS_ADMIN_USERNAME;
+      requestOptions.body.credentials.password = process.env.COASTER_CREDENTIALS_ADMIN_PASSWORD;
       request.post(requestOptions, function(error, response, body) {
         expect(body.token).toBeDefined();
         adminSessionId = body.id;

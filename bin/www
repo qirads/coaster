@@ -7,8 +7,8 @@
  */
 
 var app = require('../lib/app');
-var config = require('../config');
 var https = require('https');
+var fs = require('fs');
 var errorHandler = require('../lib/express-error-handler.wrapper')(app);
 var debug = require('debug')('coaster:www');
 
@@ -17,7 +17,7 @@ var debug = require('debug')('coaster:www');
  */
 
 var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port, config.hostName);
+app.set('port', port, process.env.COASTER_HOSTNAME);
 
 /**
  * Create HTTPS server.
@@ -25,11 +25,11 @@ app.set('port', port, config.hostName);
 
 require('ssl-root-cas/latest')
   .inject()
-  .addFile(config.filePaths.rootCertificate);
+  .addFile(process.env.COASTER_PATHS_ROOTCERTIFICATE);
 
 var server = https.createServer({
-  key : config.certs.privateKey,
-  cert: config.certs.certificate
+  key : fs.readFileSync(process.env.COASTER_PATHS_PRIVATEKEY),
+  cert: fs.readFileSync(process.env.COASTER_PATHS_CERTIFICATE)
 }, app);
 
 /**

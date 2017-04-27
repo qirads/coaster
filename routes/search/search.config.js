@@ -1,17 +1,18 @@
 'use strict';
 
-module.exports = function(app, config, clients) {
+module.exports = function(clients) {
 
   var Study = clients.mongoose.model('Study');
   var disallow = require('../common/allowMethods.middleware')();
   var validate = require('../common/validate.middleware');
   var contextFilter = require('../common/contextFilter.filter');
-  var authenticate = require('../common/jwt.wrapper')(config, clients.redis);
+  var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
   var authorize = require('../common/authorize.middleware');
   var parse = require('./parse.middleware');
   var _ = require('lodash');
-  
+  var resultLimit = require('../common/options').resultLimit;
+
   var validateCreate = validate([{
     name: 'criteria',
     type: ['string'],
@@ -31,7 +32,7 @@ module.exports = function(app, config, clients) {
     Study.search({
       bool: { filter: req.conditions }
     }, {
-      size: req.body.pageSize ? Math.min(config.resultLimit, req.body.pageSize) : config.resultLimit,
+      size: req.body.pageSize ? Math.min(resultLimit, req.body.pageSize) : resultLimit,
       from: 0,
       sort: [{ timestamp: 'desc' }]
     }, function(err, results) {
@@ -60,7 +61,7 @@ module.exports = function(app, config, clients) {
   function addResults(req, res, next) {
     if (req.params.id) {
       var pageNumber = req.query.pageNumber ? req.query.pageNumber : 0;
-      var pageSize = req.query.pageSize ? Math.min(config.resultLimit, req.query.pageSize) : config.resultLimit;
+      var pageSize = req.query.pageSize ? Math.min(resultLimit, req.query.pageSize) : resultLimit;
       Study.search({
         bool: { filter: req.conditions }
       }, {
