@@ -57,7 +57,7 @@ describe('users', function() {
 
     it('returns status code 400 on missing password', function(done) {
       requestOptions.body.userName = 'ephemeral';
-          
+      
       request.post(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(400);
         done();

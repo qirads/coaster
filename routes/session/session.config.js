@@ -6,8 +6,7 @@ module.exports = function(clients) {
   var limiter = require('express-limiter')(null, clients.redis);
   var passportWrapper = require('./passport.wrapper')(clients);
   var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
-  var validate = require('../common/validate.middleware');
-  var sessionValidations = require('./session.validations.js');
+  var sessionJoi = require('./session.joi.js');
   var contextFilter = require('../common/contextFilter.filter');
   var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
@@ -67,7 +66,7 @@ module.exports = function(clients) {
     name: 'sessions',
     preMiddleware: (process.env.NODE_ENV === 'development') ? [] : limiterWrapper,
     preCreate: [
-      validate(sessionValidations.create),
+      sessionJoi.validatePreCreate,
       passportWrapper.initialize(),
       passportWrapper.authenticate()
     ],
@@ -82,7 +81,7 @@ module.exports = function(clients) {
       authenticate,
       authorizeAccess,
       allowPatchOnly,
-      validate(sessionValidations.update),
+      sessionJoi.validatePreUpdate,
       authorizeAdminUpdate,
       checkDocument,
       updateTimestamps

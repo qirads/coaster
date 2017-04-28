@@ -4,8 +4,7 @@ module.exports = function(clients) {
 
   var Study = clients.mongoose.model('Study');
   var disallow = require('../common/allowMethods.middleware')();
-  var validate = require('../common/validate.middleware');
-  var searchValidations = require('./search.validations.js');
+  var searchJoi = require('./search.joi.js');
   var contextFilter = require('../common/contextFilter.filter');
   var authenticate = require('../common/jwt.wrapper')(clients.redis);
   var allowAdminOnly = require('../common/allowAdminOnly.middleware');
@@ -76,7 +75,7 @@ module.exports = function(clients) {
     name: 'searches',
     preCreate: [
       authenticate,
-      validate(searchValidations.create),
+      searchJoi.validatePreCreate,
       addUserId,
       parse,
       performInitialSearch
