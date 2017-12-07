@@ -7,7 +7,7 @@
  */
 
 var app = require('../lib/app');
-var https = require('https');
+var http = require('http');
 var fs = require('fs');
 var errorHandler = require('../lib/express-error-handler.wrapper')(app);
 var debug = require('debug')('coaster:www');
@@ -20,17 +20,10 @@ var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port, process.env.COASTER_HOSTNAME);
 
 /**
- * Create HTTPS server.
+ * Create HTTP server.
  */
 
-require('ssl-root-cas/latest')
-  .inject()
-  .addFile(process.env.COASTER_PATHS_ROOTCERTIFICATE);
-
-var server = https.createServer({
-  key : fs.readFileSync(process.env.COASTER_PATHS_PRIVATEKEY),
-  cert: fs.readFileSync(process.env.COASTER_PATHS_CERTIFICATE)
-}, app);
+var server = http.createServer(app);
 
 /**
  * Add error handling middeware with graceful shutdown.
@@ -67,7 +60,7 @@ function normalizePort(val) {
 }
 
 /**
- * Event listener for HTTP/HTTPS server "error" event.
+ * Event listener for server "error" event.
  */
 
 function onError(error) {
@@ -95,7 +88,7 @@ function onError(error) {
 }
 
 /**
- * Event listener for HTTP/HTTPS server "listening" event.
+ * Event listener for server "listening" event.
  */
 
 function onListening() {

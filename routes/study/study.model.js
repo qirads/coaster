@@ -20,9 +20,7 @@ module.exports = function(clients) {
     }]
   });
   
-  StudySchema.plugin(mongoosastic, {
-    auth: process.env.COASTER_CREDENTIALS_ES_USERNAME + ':' + process.env.COASTER_CREDENTIALS_ES_PASSWORD
-  });
+  StudySchema.plugin(mongoosastic);
   
   return clients.mongoose.model('Study', StudySchema);
     

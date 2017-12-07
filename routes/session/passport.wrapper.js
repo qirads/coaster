@@ -24,8 +24,13 @@ module.exports = function(clients) {
 
   LDAP_OPTS = _.merge(LDAP_OPTS, LOCAL_OPTS);
 
-  passport.use(new LdapStrategy(LDAP_OPTS, ldapVerify));
+  var strategies = [];
+  if (process.env.COASTER_PATHS_LDAP != '') {
+    passport.use(new LdapStrategy(LDAP_OPTS, ldapVerify));
+    strategies.push('ldapauth');    
+  }
   passport.use(new LocalStrategy(LOCAL_OPTS, localVerify));
+  strategies.push('local');
 
   return {
     initialize: initialize,
@@ -64,7 +69,7 @@ module.exports = function(clients) {
 
   function authenticate() {
     return function(req, res, next) {
-      passport.authenticate(['ldapauth', 'local'], { session: false }, function(err, user, info ) {
+      passport.authenticate(strategies, { session: false }, function(err, user, info ) {
         if (err) { return next(err); }
         if (!user) {
           return next(createError(401, info[0].message, {
