@@ -25,7 +25,7 @@ module.exports = function(clients) {
   LDAP_OPTS = _.merge(LDAP_OPTS, LOCAL_OPTS);
 
   var strategies = [];
-  if (process.env.COASTER_PATHS_LDAP != '') {
+  if (process.env.COASTER_PATHS_LDAP && process.env.COASTER_PATHS_LDAP != '') {
     passport.use(new LdapStrategy(LDAP_OPTS, ldapVerify));
     strategies.push('ldapauth');    
   }
