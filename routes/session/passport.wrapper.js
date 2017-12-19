@@ -72,18 +72,15 @@ module.exports = function(clients) {
       passport.authenticate(strategies, { session: false }, function(err, user, info ) {
         if (err) { return next(err); }
         if (!user) {
-          return next(createError(401, info[0].message, {
-            details: {
-              strategies: [{
-                name: 'ldapauth',
-                response: info[0].message
-              },
-              {
-                name: 'local',
-                response: info[1].message
-              }]
-            }
-          }));
+          var message = (strategies.length > 1) ? info[0].message : info.message;
+          var details = { strategies: [] };
+          for (var i = 0; i < strategies.length; i++) {
+            details.strategies.push({
+              name: strategies[i],
+              response: info[i].message
+            });
+          }
+          return next(createError(401, message, details));
         }
         req.body.userId = user._id;
         req.body.hasAdminPrivileges = user.isAdmin;

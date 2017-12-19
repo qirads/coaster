@@ -8,7 +8,6 @@
 
 var app = require('../lib/app');
 var http = require('http');
-var fs = require('fs');
 var errorHandler = require('../lib/express-error-handler.wrapper')(app);
 var debug = require('debug')('coaster:www');
 
