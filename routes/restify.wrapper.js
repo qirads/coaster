@@ -2,7 +2,6 @@
 
 module.exports = function(app) {
 
-  var router = require('express').Router();
   var restify = require('express-restify-mongoose');
   var createError = require('http-errors');  
   var _ = require('lodash');

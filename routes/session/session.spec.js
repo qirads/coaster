@@ -1,4 +1,4 @@
-/*global describe:false, it:false, expect:false*/
+/*global beforeEach:false, describe:false, it:false, expect:false*/
 
 'use strict';
 
@@ -14,7 +14,7 @@ describe('sessions', function() {
 
   requestOptions = { url: baseUrl + 'sessions', json : true, body: {} };
     
-  describe('app spinup', function() {
+  describe('app spin up', function() {
     it('should be ok', function(done) {
       app.use(errorHandler(server));
       server.listen(3000);
@@ -196,7 +196,7 @@ describe('sessions', function() {
     
     it('returns status code 200 if state is set to open', function(done) {
       requestOptions.body = { state: 'open' };
-      request.patch(requestOptions, function(error, response, body) {
+      request.patch(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(200);
         done();
       });
@@ -228,12 +228,12 @@ describe('sessions', function() {
     
   });
   
-  describe('app spindown', function() {
+  describe('app spin down', function() {
     it('should be ok', function(done) {
       requestOptions.headers = { Authorization: 'Bearer ' + adminToken };
       requestOptions.url = baseUrl + 'users/' + nonAdminUserId;
       delete requestOptions.body;
-      request.del(requestOptions, function(error, response, body) {
+      request.del(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(204);
         server.close(function() {
           done();

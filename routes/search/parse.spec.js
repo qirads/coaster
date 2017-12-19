@@ -1,4 +1,4 @@
-/*global describe:false, it:false, expect:false*/
+/*global jasmine:false describe:false, it:false, expect:false*/
 
 'use strict';
 

@@ -1,4 +1,4 @@
-/*global describe:false, it:false, expect:false*/
+/*global beforeEach:false, describe:false, it:false, expect:false*/
 
 'use strict';
 
@@ -10,9 +10,9 @@ var baseUrl = process.env.COASTER_PATHS_HTTP + '/api/v1/';
 
 describe('users', function() {
 
-  var requestOptions, adminToken, localUserId, localUserToken, nonLocalUserId;;
+  var requestOptions, adminToken, localUserId, localUserToken, nonLocalUserId;
 
-  describe('app spinup', function() {
+  describe('app spin up', function() {
     it('should be ok', function(done) {
       app.use(errorHandler(server));
       server.listen(3000);
@@ -120,7 +120,7 @@ describe('users', function() {
     it('returns status code 401 if user not activated', function(done) {
       requestOptions.url = baseUrl + 'sessions';
       requestOptions.body.credentials = { userName: 'ephemeral', password: 'veryephemeral' };
-      request.post(requestOptions, function(error, response, body) {
+      request.post(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(401);
         done();
       });
@@ -132,7 +132,7 @@ describe('users', function() {
     
     it('returns status code 200', function(done) {
       requestOptions.url = baseUrl + 'users/' + localUserId;
-      request.get(requestOptions, function(error, response, body) {
+      request.get(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(200);
         done();
       });
@@ -163,7 +163,7 @@ describe('users', function() {
         localUserToken = body.token;
         requestOptions.headers = { Authorization: 'Bearer ' + localUserToken };
         requestOptions.body = { password: 'veryephemeral2' };
-        request.patch(requestOptions, function(error, response, body) {
+        request.patch(requestOptions, function(error, response) {
           expect(response.statusCode).toBe(403);
           done();
         });
@@ -182,7 +182,7 @@ describe('users', function() {
           localUserToken = body.token;
           requestOptions.headers = { Authorization: 'Bearer ' + oldLocalUserToken };
           requestOptions.url = baseUrl + 'users/' + localUserId;
-          request.get(requestOptions, function(error, response, body) {
+          request.get(requestOptions, function(error, response) {
             expect(response.statusCode).toBe(401);
             requestOptions.headers = { Authorization: 'Bearer ' + localUserToken };
             requestOptions.url = baseUrl + 'users/' + localUserId;
@@ -227,7 +227,7 @@ describe('users', function() {
     
   });
     
-  describe('app spindown', function() {
+  describe('app spin down', function() {
     it('should be ok', function(done) {
       server.close(function() {
         done();        

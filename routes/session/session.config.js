@@ -2,7 +2,6 @@
 
 module.exports = function(clients) {
 
-  var Session = clients.mongoose.model('Session');
   var limiter = require('express-limiter')(null, clients.redis);
   var passportWrapper = require('./passport.wrapper')(clients);
   var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');

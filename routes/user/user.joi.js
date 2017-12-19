@@ -44,7 +44,6 @@ function validateBodyOnCreate(req, res, next) {
 
 function validateDocWithNewBodyOnUpdate(req, res, next) {
   var updatedDocWithBody = _.assign({}, req.erm.document.toObject(), req.body);
-  console.log(updatedDocWithBody);
   validate(updatedDocWithBody, updatedUserSchema, next);
 }
 

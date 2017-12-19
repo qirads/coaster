@@ -2,8 +2,6 @@
 
 module.exports = function(clients) {
 
-  var User = clients.mongoose.model('User');
-  var createError = require('http-errors');
   var allowPatchOnly = require('../common/allowMethods.middleware')('PATCH');
   var userJoi = require('./user.joi.js');
   var authenticate = require('../common/jwt.wrapper')(clients.redis);

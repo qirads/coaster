@@ -1,4 +1,4 @@
-/*global describe:false, it:false, expect:false*/
+/*global beforeEach:false, describe:false, it:false, expect:false*/
 
 'use strict';
 
@@ -15,7 +15,7 @@ describe('searches', function() {
 
   requestOptions = { url: baseUrl + 'searches', json : true, body: {} };
     
-  describe('app spinup', function() {
+  describe('app spin up', function() {
     it('should be ok', function(done) {
       app.use(errorHandler(server));
       server.listen(3000);
@@ -42,7 +42,7 @@ describe('searches', function() {
     it('returns 201 when searching by demographics status', function(done) {
       requestOptions.body.criteria = ['demographics:verified'];
       
-      request.post(requestOptions, function(error, response, body) {
+      request.post(requestOptions, function(error, response) {
         expect(response.statusCode).toBe(201);
         done();
       });
@@ -67,7 +67,7 @@ describe('searches', function() {
     
   });
   
-  describe('app spindown', function() {
+  describe('app spin down', function() {
     it('should be ok', function(done) {
       server.close(function() {
         done();
